@@ -1,0 +1,111 @@
+import React from "react";
+import Card from "../../components/Card/Card";
+import * as Yup from "yup";
+import { Formik } from "formik";
+import Typography from "@material-ui/core/Typography/Typography";
+import {
+  FormControl,
+  Input,
+  InputLabel,
+  FormHelperText,
+  Button,
+} from "@material-ui/core";
+import { connect } from "react-redux";
+import { loginAction } from "../../Redux/Actions/Authentication";
+const styles = {
+  cardStyles: {
+    width: "40%",
+    marginLeft: "auto",
+    marginRight: "auto",
+    marginTop: "50px",
+    padding: "20px",
+  },
+};
+
+const validationSchema = Yup.object().shape({
+  password: Yup.string()
+    .required("Enter Password")
+    .min(6, "Password must be 6 characters long"),
+  email: Yup.string().required("Enter Email").email("Enter Correct Email"),
+});
+
+class SignIn extends React.Component {
+  submitHandler = (values) => {
+    const { dispatch } = this.props;
+    dispatch(loginAction(values));
+  };
+  render() {
+    return (
+      <div>
+        <Card style={styles.cardStyles}>
+          <Typography
+            variant="h3"
+            color="primary"
+            style={{ textAlign: "center" }}
+          >
+            videonPro
+          </Typography>
+          <Formik
+            onSubmit={this.submitHandler}
+            initialValues={{
+              password: "",
+              email: "",
+            }}
+            validationSchema={validationSchema}
+          >
+            {(formik) => (
+              <form onSubmit={formik.handleSubmit} style={{ padding: "10px" }}>
+                <div style={{ marginBottom: "30px" }}>
+                  <FormControl fullWidth={true}>
+                    <InputLabel htmlFor="email">Email</InputLabel>
+                    <Input
+                      name="email"
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      id="email"
+                      aria-describedby="email-helper-text"
+                    />
+                    <FormHelperText error={true} id="email-helper-text">
+                      {formik.touched.email ? formik.errors.email : null}
+                    </FormHelperText>
+                  </FormControl>
+                </div>
+                <div style={{ marginBottom: "30px" }}>
+                  <FormControl fullWidth={true}>
+                    <InputLabel htmlFor="password">Password</InputLabel>
+                    <Input
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      name="password"
+                      type="password"
+                      id="password"
+                      aria-describedby="password-helper-text"
+                    />
+                    <FormHelperText error={true} id="password-helper-text">
+                      {formik.touched.password ? formik.errors.password : null}
+                    </FormHelperText>
+                  </FormControl>
+                </div>
+                <div style={{ marginTop: "10px" }}>
+                  <Button
+                    type="submit"
+                    color="primary"
+                    variant="contained"
+                    fullWidth={true}
+                    disabled={this.props.Authentication.isLoading}
+                  >
+                    LOGIN
+                  </Button>
+                </div>
+              </form>
+            )}
+          </Formik>
+        </Card>
+      </div>
+    );
+  }
+}
+const mapStateToProps = (store) => ({
+  Authentication: store.Authentication,
+});
+export default connect(mapStateToProps)(SignIn);
