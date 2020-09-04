@@ -1,9 +1,10 @@
 import Dashboard from "@material-ui/icons/Dashboard";
 import Person from "@material-ui/icons/Person";
+import {Image} from "@material-ui/icons";
 import DashboardPage from "views/Dashboard/Dashboard.js";
-import UserProfile from "views/UserProfile/UserProfile.js";
-import TableList from "views/TableList/TableList.js";
-
+// import UserProfile from "views/UserProfile/UserProfile.js";
+import UserList from "views/Users/UserList";
+import PublicAssets from "views/PublicAssets/PublicAssets";
 
 const dashboardRoutes = [
   {
@@ -15,18 +16,17 @@ const dashboardRoutes = [
     layout: "/admin",
   },
   {
-    path: "/user",
-    name: "User Profile",
+    path: "/users",
+    name: "Users",
     icon: Person,
-    component: UserProfile,
+    component: UserList,
     layout: "/admin",
   },
   {
-    path: "/table",
-    name: "Table List",
-    rtlName: "قائمة الجدول",
-    icon: "content_paste",
-    component: TableList,
+    path: "/publicAssets",
+    name: "Public Assets",
+    icon: Image,
+    component: PublicAssets,
     layout: "/admin",
   },
 ];

@@ -14,12 +14,13 @@ import Divider from "@material-ui/core/Divider";
 import Person from "@material-ui/icons/Person";
 // core components
 import Button from "components/CustomButtons/Button.js";
-
+import { connect } from "react-redux";
+import { logoutAction } from "../../Redux/Actions/Authentication";
 import styles from "assets/jss/material-dashboard-react/components/headerLinksStyle.js";
 
 const useStyles = makeStyles(styles);
 
-export default function AdminNavbarLinks() {
+function AdminNavbarLinks(props) {
   const classes = useStyles();
   const [openProfile, setOpenProfile] = React.useState(null);
   const handleClickProfile = (event) => {
@@ -32,6 +33,8 @@ export default function AdminNavbarLinks() {
   const handleCloseProfile = () => {
     setOpenProfile(null);
   };
+  const logoutHandler = () => props.dispatch(logoutAction());
+
   return (
     <div>
       <Button
@@ -91,7 +94,7 @@ export default function AdminNavbarLinks() {
                     </MenuItem>
                     <Divider light />
                     <MenuItem
-                      onClick={handleCloseProfile}
+                      onClick={logoutHandler}
                       className={classes.dropdownItem}
                     >
                       Logout
@@ -106,3 +109,5 @@ export default function AdminNavbarLinks() {
     </div>
   );
 }
+
+export default connect()(AdminNavbarLinks);

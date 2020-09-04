@@ -1,5 +1,5 @@
 import React from "react";
-import store from "../Redux/store";
+import store, { persitor } from "../Redux/store";
 import { Provider } from "react-redux";
 import { toast } from "react-toastify";
 import { Router, Switch } from "react-router-dom";
@@ -12,6 +12,7 @@ import Admin from "../layouts/Admin.js";
 import SignIn from "views/SignIn/SignIn";
 import ProtectedRoute from "./ProtectedRoute";
 import AuthRoute from "./AuthRoute";
+import { PersistGate } from "redux-persist/integration/react";
 
 const hist = createBrowserHistory();
 toast.configure({
@@ -24,12 +25,14 @@ toast.configure({
 const MainComponent = () => {
   return (
     <Provider store={store}>
-      <Router history={hist}>
-        <Switch>
-          <ProtectedRoute path="/admin" component={Admin} />
-          <AuthRoute path="/" component={SignIn} />
-        </Switch>
-      </Router>
+      <PersistGate loading={null} persistor={persitor}>
+        <Router history={hist}>
+          <Switch>
+            <ProtectedRoute path="/admin" component={Admin} />
+            <AuthRoute path="/" component={SignIn} />
+          </Switch>
+        </Router>
+      </PersistGate>
     </Provider>
   );
 };

@@ -10,3 +10,5 @@ export const loggedInAction = (user) => ({
 });
 
 export const loginFailed = () => ({ type: types.LOGIN_FAILED });
+
+export const logoutAction = () => ({ type: types.LOGOUT });
