@@ -1,8 +1,7 @@
-import axios from "axios";
-import { baseUrl } from "shared";
+import API from "../../../lib/Api";
 
 export const getUsersApi = (pageNo, token) =>
-  axios.get(`${baseUrl}user/getAllUsersWithPagination`, {
+  API.get("user/getAllUsersWithPagination", {
     params: { pageNo },
-    headers: { authorization: "bearer " + token },
+    headers: { authorization: "bearer " + token }
   });

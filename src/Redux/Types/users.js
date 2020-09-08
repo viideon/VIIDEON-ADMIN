@@ -1,0 +1,3 @@
+export const LOAD_USERS = "LOAD_USERS";
+export const USERS_LOADED = "USERS_LOADED";
+export const USERS_LOADED_FAILED = "USERS_LOADED_FAILED";

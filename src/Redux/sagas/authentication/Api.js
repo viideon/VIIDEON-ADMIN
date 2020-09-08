@@ -1,5 +1,4 @@
-import axios from "axios";
-import { baseUrl } from "shared";
+import API from "../../../lib/Api";
 
 export const loginApi = ({ email, password }) =>
-  axios.post(`${baseUrl}user/login`, { email, password });
+  API.post("user/login", { email, password });

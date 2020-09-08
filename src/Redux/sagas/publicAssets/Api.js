@@ -1,12 +1,11 @@
-import axios from "axios";
-import { baseUrl } from "shared";
+import API from "../../../lib/Api";
 
-export const getPublicAssets = (token) =>
-  axios.get(`${baseUrl}publicAssets/getAssets`, {
-    headers: { authorization: "bearer " + token },
+export const getPublicAssets = token =>
+  API.get("/publicAssets/getAssets", {
+    headers: { authorization: "bearer " + token }
   });
 
-export const getSignedUrl = (token) =>
-  axios.get(`${baseUrl}publicAssets/getSignedUrlForAssetUploading`, {
-    headers: { authorization: "bearer " + token },
+export const getSignedUrl = token =>
+  API.get("/publicAssets/getSignedUrlForAssetUploading", {
+    headers: { authorization: "bearer " + token }
   });
