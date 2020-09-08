@@ -1,0 +1,7 @@
+.headerCampaignTemplate {
+  display: flex;
+  align-items: center;
+}
+.headerCampaignTemplate h3 {
+  padding-right: 0.6em;
+}

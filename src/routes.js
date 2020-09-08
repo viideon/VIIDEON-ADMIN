@@ -5,6 +5,7 @@ import DashboardPage from "views/Dashboard/Dashboard.js";
 // import UserProfile from "views/UserProfile/UserProfile.js";
 import UserList from "views/Users/UserList";
 import PublicAssets from "views/PublicAssets/PublicAssets";
+import Campaign from "views/Campaign";
 
 const dashboardRoutes = [
   {
@@ -26,6 +27,13 @@ const dashboardRoutes = [
     name: "Public Assets",
     icon: Image,
     component: PublicAssets,
+    layout: "/admin"
+  },
+  {
+    path: "/campaigns",
+    name: "Campaigns",
+    icon: Image,
+    component: Campaign,
     layout: "/admin"
   }
 ];
