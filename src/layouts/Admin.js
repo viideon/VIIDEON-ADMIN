@@ -8,7 +8,7 @@ import Sidebar from "components/Sidebar/Sidebar.js";
 import routes from "routes.js";
 import styles from "assets/jss/material-dashboard-react/layouts/adminStyle.js";
 import bgImage from "assets/img/sidebar-2.jpg";
-import logo from "assets/img/reactlogo.png";
+import officialLogo from "assets/images/officialLogo.png";
 
 let ps;
 
@@ -58,7 +58,7 @@ export default function Admin({ ...rest }) {
     if (navigator.platform.indexOf("Win") > -1) {
       ps = new PerfectScrollbar(mainPanel.current, {
         suppressScrollX: true,
-        suppressScrollY: false,
+        suppressScrollY: false
       });
       document.body.style.overflow = "hidden";
     }
@@ -75,8 +75,8 @@ export default function Admin({ ...rest }) {
     <div className={classes.wrapper}>
       <Sidebar
         routes={routes}
-        logoText={"Creative Tim"}
-        logo={logo}
+        logoText={"VideonPro"}
+        logo={officialLogo}
         image={image}
         handleDrawerToggle={handleDrawerToggle}
         open={mobileOpen}
