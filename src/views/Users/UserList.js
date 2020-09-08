@@ -8,7 +8,6 @@ import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
 import { Pagination } from "@material-ui/lab";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
-
 import { connect } from "react-redux";
 import { loadUserAction } from "../../Redux/Actions/Users";
 import { primaryColor } from "../../assets/jss/material-dashboard-react";
@@ -16,9 +15,9 @@ import { primaryColor } from "../../assets/jss/material-dashboard-react";
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: primaryColor[0],
-    },
-  },
+      main: primaryColor[0]
+    }
+  }
 });
 
 const styles = {
@@ -28,11 +27,11 @@ const styles = {
       margin: "0",
       fontSize: "14px",
       marginTop: "0",
-      marginBottom: "0",
+      marginBottom: "0"
     },
     "& a,& a:hover,& a:focus": {
-      color: "#FFFFFF",
-    },
+      color: "#FFFFFF"
+    }
   },
   cardTitleWhite: {
     color: "#FFFFFF",
@@ -46,14 +45,14 @@ const styles = {
       color: "#777",
       fontSize: "65%",
       fontWeight: "400",
-      lineHeight: "1",
-    },
+      lineHeight: "1"
+    }
   },
   paginationContainer: {
     display: "flex",
     justifyContent: "center",
-    padding: "10px",
-  },
+    padding: "10px"
+  }
 };
 
 class UsersList extends React.Component {
@@ -62,12 +61,12 @@ class UsersList extends React.Component {
   }
   tableHead = ["First Name", "Last Name", "Email", "User Name", "Avatar Url"];
   mapUsers = () =>
-    this.props.Users.users.docs.map((user) => [
+    this.props.Users.users.docs.map(user => [
       user.firstName,
       user.lastName,
       user.email,
       user.userName,
-      user.url,
+      user.url
     ]);
   onPageChange = (...params) => this.props.dispatch(loadUserAction(params[1]));
 
@@ -111,5 +110,5 @@ class UsersList extends React.Component {
     );
   }
 }
-const mapStoreToProps = (store) => ({ Users: store.Users });
+const mapStoreToProps = store => ({ Users: store.Users });
 export default connect(mapStoreToProps)(UsersList);

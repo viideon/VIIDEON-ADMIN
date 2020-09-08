@@ -3,9 +3,10 @@ import * as types from "../../actionTypes";
 import { getUsersApi } from "./Api";
 import { toast } from "react-toastify";
 import { usersLoadedAction, usersLoadingFailed } from "../../Actions/Users";
+import { getToken } from "../../Selectors";
 const getUsers = function* (action) {
   try {
-    const token = yield select((store) => store.Authentication.user.token);
+    const token = yield select(getToken);
     const usersResp = yield getUsersApi(action.payload, token);
     yield put(usersLoadedAction(usersResp.data.users));
   } catch (err) {

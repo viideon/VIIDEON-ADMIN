@@ -5,11 +5,12 @@ import { toast } from "react-toastify";
 import {
   publicAssetsLoadedAction,
   publicAssetsLoadingFailed,
-  addingNewPublicAssetFailed,
+  addingNewPublicAssetFailed
 } from "../../Actions/PublicAssets";
+import { getToken } from "../../Selectors";
 const getAssets = function* () {
   try {
-    const token = yield select((store) => store.Authentication.user.token);
+    const token = yield select(getToken);
     const publicAssetResp = yield getPublicAssets(token);
     yield put(publicAssetsLoadedAction(publicAssetResp.data.assets));
   } catch (err) {
@@ -25,7 +26,7 @@ const getAssets = function* () {
 
 const addNewAsset = function* () {
   try {
-    const token = yield select((store) => store.Authentication.user.token);
+    const token = yield select(store => store.Authentication.user.token);
     const signedUrlResp = yield getSignedUrl(token);
     console.log(signedUrlResp);
     // yield put(publicAssetsLoadedAction(publicAssetResp.data.assets));
