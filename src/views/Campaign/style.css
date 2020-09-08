@@ -1,7 +1,36 @@
 .headerCampaignTemplate {
   display: flex;
   align-items: center;
+  padding-bottom: 20px;
 }
 .headerCampaignTemplate h3 {
   padding-right: 0.6em;
+}
+.wrapperFormTemplate {
+  display: flex;
+  justify-content: center;
+}
+.addTemplateForm {
+  padding: 30px;
+  border-radius: 5px;
+  border: 1px solid #cdcdcd;
+  width: 90%;
+}
+.previewThumbnail {
+  width: 10em;
+  height: 6em;
+  margin: 10px 0px;
+}
+.thumbnailImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.headingTemplateStep {
+  padding: 10px 0px;
+}
+.wrapperStepDetails {
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 5px #cdcdcd;
 }

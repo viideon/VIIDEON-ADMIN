@@ -1,6 +1,7 @@
 import React from "react";
-import { Typography, Button } from "@material-ui/core";
+import { Typography, Button, Grid } from "@material-ui/core";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
+import CampaignTemplateCard from "../../components/CampaignTemplateCard";
 import "./style.css";
 
 class ViewTemplates extends React.Component {
@@ -21,6 +22,11 @@ class ViewTemplates extends React.Component {
             Add Template
           </Button>
         </div>
+        <Grid container>
+          <Grid item xs={12} sm={6} md={3} lg={3} spacing={1}>
+            <CampaignTemplateCard />
+          </Grid>
+        </Grid>
       </div>
     );
   }
