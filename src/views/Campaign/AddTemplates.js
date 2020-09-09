@@ -1,4 +1,5 @@
 import React from "react";
+import AWS from "aws-sdk";
 import {
   Typography,
   Button,
@@ -8,15 +9,17 @@ import {
   ListItem,
   ListItemText,
   Card,
-  CardContent
+  CardContent,
+  CircularProgress
 } from "@material-ui/core";
 import Colors from "../../constants/colors";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import { toast } from "react-toastify";
+import { config } from "../../lib/aws";
 import "./style.css";
 
 class AddTemplates extends React.Component {
-  thumbnailImg;
+  s3;
   state = {
     steps: [],
     example: "",
@@ -25,11 +28,11 @@ class AddTemplates extends React.Component {
     name: "",
     description: "",
     examples: [],
-    thumbnailFile: null,
+    thumbnailUploading: false,
     thumbnailImgUrl: ""
   };
   componentDidMount() {
-    this.thumbnailImg = this.refs.thumbnailImg;
+    this.s3 = new AWS.S3(config);
   }
   addNewStep = () => {
     const step = {
@@ -55,7 +58,33 @@ class AddTemplates extends React.Component {
     this.refs.thumbnailUploadRef.click();
   };
   uploadThumbnail = e => {
-    alert("File selected");
+    if (e.target.files[0] !== null) {
+      if (!e.target.files[0].name.match(/\.(jpg|jpeg|png)$/)) {
+        toast.error("Please add valid image");
+        return;
+      }
+      const thumbnailOptions = {
+        Bucket: config.bucketName,
+        ACL: config.ACL,
+        Key: Date.now().toString() + e.target.files[0].name,
+        Body: e.target.files[0]
+      };
+      this.setState({ thumbnailUploading: true });
+      this.s3.upload(thumbnailOptions, (err, data) => {
+        if (err) {
+          toast.error(err.message);
+          this.setState({ thumbnailUploading: false });
+          return;
+        }
+        this.setState({
+          thumbnailUploading: false,
+          thumbnailImgUrl: data.Location
+        });
+        toast.info("Uploaded");
+      });
+    } else {
+      toast.error("error in selecting file");
+    }
   };
   onExampleChange = e => {
     this.setState({ example: e.target.value });
@@ -131,27 +160,34 @@ class AddTemplates extends React.Component {
                 style={{ display: "none" }}
                 onChange={this.uploadThumbnail}
               />
-              <Tooltip
-                title="Add a thumbnail to present the template"
-                placement="top"
-              >
-                <Button
-                  color="primary"
-                  startIcon={<AddCircleIcon />}
-                  variant="outlined"
-                  size="small"
-                  style={{ backgroundColor: "#cdcdcd", marginTop: "10px" }}
-                  onClick={this.triggerThumbnailUpload}
+              <div className="wrapperUploadBtn">
+                <Tooltip
+                  title="Add a thumbnail to present the template"
+                  placement="top"
                 >
-                  Upload Thumbnail
-                </Button>
-              </Tooltip>
-              {this.state.thumbnailFile && (
+                  <Button
+                    color="primary"
+                    startIcon={<AddCircleIcon />}
+                    variant="outlined"
+                    size="small"
+                    style={{ backgroundColor: "#cdcdcd", marginTop: "10px" }}
+                    onClick={this.triggerThumbnailUpload}
+                  >
+                    Upload Thumbnail
+                  </Button>
+                </Tooltip>
+                {this.state.thumbnailUploading && (
+                  <span>
+                    <CircularProgress size={20} />
+                  </span>
+                )}
+              </div>
+              {this.state.thumbnailImgUrl && (
                 <div className="previewThumbnail">
                   <img
                     className="thumbnailImg"
                     alt="thumbnailImg"
-                    ref="thumbnailImg"
+                    src={this.state.thumbnailImgUrl}
                   />
                 </div>
               )}

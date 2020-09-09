@@ -3,6 +3,6 @@ export const config = {
   dirName: "assets",
   region: "us-west-1",
   ACL: "public-read",
-  accessKeyId: process.env.REACT_APP_ACCESSKEY_ID,
-  secretAccessKey: process.env.REACT_APP_SECRET
+  accessKeyId: "AKIAIFPB4DLZUPRDJWGA",
+  secretAccessKey: "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"
 };

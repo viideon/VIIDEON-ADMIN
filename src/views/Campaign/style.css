@@ -38,3 +38,11 @@
 .wrapperSaveTemplateBtn {
   text-align: end;
 }
+
+.wrapperUploadBtn {
+  display: flex;
+  align-items: baseline;
+}
+.wrapperUploadBtn span {
+  margin-left: 5px;
+}
