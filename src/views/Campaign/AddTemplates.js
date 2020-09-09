@@ -6,9 +6,14 @@ import {
   Tooltip,
   List,
   ListItem,
-  ListItemText
+  ListItemText,
+  Card,
+  CardContent
 } from "@material-ui/core";
+import Colors from "../../constants/colors";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
+import { toast } from "react-toastify";
+import "./style.css";
 
 class AddTemplates extends React.Component {
   thumbnailImg;
@@ -20,7 +25,7 @@ class AddTemplates extends React.Component {
     name: "",
     description: "",
     examples: [],
-    thumbnailFile: "",
+    thumbnailFile: null,
     thumbnailImgUrl: ""
   };
   componentDidMount() {
@@ -32,12 +37,16 @@ class AddTemplates extends React.Component {
       description: this.state.description,
       examples: this.state.examples
     };
-    this.setState({ steps: [...this.state.steps, step] }, () => {
-      this.setState({ title: "", description: "", examples: [] });
-    });
+    if (step.title === "" || step.description === "") {
+      toast.info("Please fill the field to add a step to template");
+    } else {
+      this.setState({ steps: [...this.state.steps, step] }, () => {
+        this.setState({ title: "", description: "", examples: [] });
+      });
+    }
   };
   onChangeText = e => {
-    this.setState({ [e.target.name]: [e.target.value] });
+    this.setState({ [e.target.name]: e.target.value });
   };
   viewTemplates = () => {
     this.props.changeCurrentComponent(1);
@@ -57,6 +66,29 @@ class AddTemplates extends React.Component {
         examples: [...this.state.examples, this.state.example],
         example: ""
       });
+    }
+  };
+  saveTemplate = () => {
+    console.log("state", this.state);
+    const { name, steps, thumbnailImgUrl, templateDescription } = this.state;
+    if (name === "") {
+      return toast.error("Template name is required");
+    } else if (templateDescription === "") {
+      return toast.error("Template description is required");
+    } else if (thumbnailImgUrl === "") {
+      return toast.error("Template thumbnail is required");
+    } else if (!steps.length) {
+      return toast.error(
+        "You need to add atleast one step for campaign templates"
+      );
+    } else {
+      console.log(
+        "final result",
+        name,
+        steps,
+        thumbnailImgUrl,
+        templateDescription
+      );
     }
   };
   render() {
@@ -79,11 +111,14 @@ class AddTemplates extends React.Component {
               label="Template Name"
               variant="outlined"
               margin="dense"
+              name="name"
+              onChange={this.onChangeText}
             />
             <TextField
               value={this.state.templateDescription}
               onChange={this.onChangeText}
               label="Description"
+              name="templateDescription"
               variant="outlined"
               fullWidth
               margin="dense"
@@ -111,29 +146,33 @@ class AddTemplates extends React.Component {
                   Upload Thumbnail
                 </Button>
               </Tooltip>
-              <div className="previewThumbnail">
-                <img
-                  className="thumbnailImg"
-                  alt="thumbnailImg"
-                  ref="thumbnailImg"
-                />
-              </div>
+              {this.state.thumbnailFile && (
+                <div className="previewThumbnail">
+                  <img
+                    className="thumbnailImg"
+                    alt="thumbnailImg"
+                    ref="thumbnailImg"
+                  />
+                </div>
+              )}
             </div>
             <Typography variant="h5" className="headingTemplateStep">
               Add Steps to template
             </Typography>
             {this.state.steps.map((step, index) => (
-              <div key={index} className="cardSteps">
-                <h3>Step {index + 1}</h3>
-                <h5>Title : {step.title}</h5>
-                <h5>Description : {step.description}</h5>
-                <span>Examples</span>
-                <ul>
-                  {step.examples.map((example, index) => (
-                    <li key={index}>{example}</li>
-                  ))}
-                </ul>
-              </div>
+              <Card key={index} style={cardStyle}>
+                <CardContent>
+                  <h3>Step {index + 1}</h3>
+                  <h5>Title : {step.title}</h5>
+                  <h5>Description : {step.description}</h5>
+                  <span>Examples</span>
+                  <ul>
+                    {step.examples.map((example, index) => (
+                      <li key={index}>{example}</li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
             ))}
             <div className="wrapperStepDetails">
               <TextField
@@ -173,13 +212,23 @@ class AddTemplates extends React.Component {
               />
             </div>
             <Button variant="contained" onClick={this.addNewStep}>
-              Next Step
+              Add step to template
             </Button>
+            <div className="wrapperSaveTemplateBtn">
+              <Button
+                style={{ backgroundColor: Colors.themeBlue }}
+                onClick={this.saveTemplate}
+              >
+                Save Template
+              </Button>
+            </div>
           </div>
         </div>
       </>
     );
   }
 }
-
+const cardStyle = {
+  marginBottom: "5px"
+};
 export default AddTemplates;

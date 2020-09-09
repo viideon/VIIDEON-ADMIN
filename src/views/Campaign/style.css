@@ -30,11 +30,11 @@
   padding: 10px 0px;
 }
 .wrapperStepDetails {
-  padding: 10px;
-}
-.cardSteps {
   border: 1px solid #cdcdcd;
-  border-radius: 5px;
   padding: 10px;
-  margin-bottom: 5px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+.wrapperSaveTemplateBtn {
+  text-align: end;
 }
