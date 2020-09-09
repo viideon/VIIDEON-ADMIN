@@ -10,7 +10,7 @@ import PublicAssets from "./Reducers/PublicAssets";
 const rootPersistConfig = {
   key: "root",
   storage: storage,
-  whitelist: ["Authentication"],
+  whitelist: ["Authentication"]
 };
 
 const persistedReducer = persistReducer(
@@ -18,7 +18,15 @@ const persistedReducer = persistReducer(
   combineReducers({ Authentication, Users, PublicAssets })
 );
 const sagaMiddleware = createSagaMiddlware();
-const store = createStore(persistedReducer, applyMiddleware(sagaMiddleware));
+let enhancer;
+if (window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
+  enhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__(
+    applyMiddleware(sagaMiddleware)
+  );
+} else {
+  enhancer = compose(applyMiddleware(sagaMiddleware));
+}
+const store = createStore(persistedReducer, {}, enhancer);
 sagaMiddleware.run(rootSaga);
 
 export const persitor = persistStore(store);
