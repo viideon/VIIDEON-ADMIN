@@ -1,8 +1,9 @@
-import { createStore, applyMiddleware, combineReducers } from "redux";
+import { createStore, applyMiddleware, combineReducers, compose } from "redux";
 import createSagaMiddlware from "redux-saga";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import Authentication from "./Reducers/Authentication";
+import Campaigns from "./Reducers/Campaigns";
 import Users from "./Reducers/Users";
 import rootSaga from "./sagas";
 import PublicAssets from "./Reducers/PublicAssets";
@@ -10,12 +11,12 @@ import PublicAssets from "./Reducers/PublicAssets";
 const rootPersistConfig = {
   key: "root",
   storage: storage,
-  whitelist: ["Authentication"]
+  whitelist: ["Authentication", "Campaigns"]
 };
 
 const persistedReducer = persistReducer(
   rootPersistConfig,
-  combineReducers({ Authentication, Users, PublicAssets })
+  combineReducers({ Authentication, Users, PublicAssets, Campaigns })
 );
 const sagaMiddleware = createSagaMiddlware();
 let enhancer;
