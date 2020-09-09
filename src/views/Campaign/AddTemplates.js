@@ -1,5 +1,6 @@
 import React from "react";
 import AWS from "aws-sdk";
+import { connect } from "react-redux";
 import {
   Typography,
   Button,
@@ -16,6 +17,7 @@ import Colors from "../../constants/colors";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import { toast } from "react-toastify";
 import { config } from "../../lib/aws";
+import { addCampaignTemplate } from "../../Redux/Actions/Template";
 import "./style.css";
 
 class AddTemplates extends React.Component {
@@ -33,6 +35,14 @@ class AddTemplates extends React.Component {
   };
   componentDidMount() {
     this.s3 = new AWS.S3(config);
+  }
+  componentWillReceiveProps(nextProps) {
+    if (
+      nextProps.redirectAfterSave &&
+      nextProps.redirectAfterSave !== this.props.redirectAfterSave
+    ) {
+      this.viewTemplates();
+    }
   }
   addNewStep = () => {
     const step = {
@@ -98,7 +108,6 @@ class AddTemplates extends React.Component {
     }
   };
   saveTemplate = () => {
-    console.log("state", this.state);
     const { name, steps, thumbnailImgUrl, templateDescription } = this.state;
     if (name === "") {
       return toast.error("Template name is required");
@@ -111,16 +120,18 @@ class AddTemplates extends React.Component {
         "You need to add atleast one step for campaign templates"
       );
     } else {
-      console.log(
-        "final result",
-        name,
-        steps,
-        thumbnailImgUrl,
-        templateDescription
-      );
+      const template = {
+        name: this.state.name,
+        templateDescription: this.state.templateDescription,
+        steps: this.state.steps,
+        templateThumbnailUrl: this.state.thumbnailImgUrl,
+        totalSteps: this.state.steps.length
+      };
+      this.props.addCampaignTemplate(template);
     }
   };
   render() {
+    const { isTemplateSaved } = this.props;
     return (
       <>
         <div className="headerCampaignTemplate">
@@ -134,6 +145,11 @@ class AddTemplates extends React.Component {
             View Templates
           </Button>
         </div>
+        {isTemplateSaved && (
+          <div className="progressIcon">
+            <CircularProgress />
+          </div>
+        )}
         <div className="wrapperFormTemplate">
           <div className="addTemplateForm">
             <TextField
@@ -267,4 +283,16 @@ class AddTemplates extends React.Component {
 const cardStyle = {
   marginBottom: "5px"
 };
-export default AddTemplates;
+const mapStateToProps = state => {
+  return {
+    isTemplateSaved: state.Campaigns.isTemplateSaved,
+    redirectAfterSave: state.Campaigns.redirectAfterSave
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    addCampaignTemplate: template => dispatch(addCampaignTemplate(template))
+  };
+};
+export default connect(mapStateToProps, mapDispatchToProps)(AddTemplates);

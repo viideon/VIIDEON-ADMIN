@@ -1,5 +1,6 @@
 import React from "react";
 import { Typography, Button, Grid } from "@material-ui/core";
+import { connect } from "react-redux";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CampaignTemplateCard from "../../components/CampaignTemplateCard";
 import "./style.css";
@@ -9,6 +10,7 @@ class ViewTemplates extends React.Component {
     this.props.changeCurrentComponent(2);
   };
   render() {
+    const { templates } = this.props;
     return (
       <div>
         <div className="headerCampaignTemplate">
@@ -23,13 +25,20 @@ class ViewTemplates extends React.Component {
           </Button>
         </div>
         <Grid container spacing={1}>
-          <Grid item xs={12} sm={6} md={3} lg={3}>
-            <CampaignTemplateCard />
-          </Grid>
+          {templates &&
+            templates.map(template => (
+              <Grid item xs={12} sm={6} md={3} lg={3} key={template._id}>
+                <CampaignTemplateCard template={template} />
+              </Grid>
+            ))}
         </Grid>
       </div>
     );
   }
 }
-
-export default ViewTemplates;
+const mapStateToProps = state => {
+  return {
+    templates: state.Campaigns.templates
+  };
+};
+export default connect(mapStateToProps)(ViewTemplates);

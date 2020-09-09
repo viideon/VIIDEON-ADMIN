@@ -46,3 +46,9 @@
 .wrapperUploadBtn span {
   margin-left: 5px;
 }
+.progressIcon {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, 0);
+}

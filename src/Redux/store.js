@@ -11,13 +11,21 @@ import PublicAssets from "./Reducers/PublicAssets";
 const rootPersistConfig = {
   key: "root",
   storage: storage,
-  whitelist: ["Authentication", "Campaigns"]
+  whitelist: ["Authentication"],
+  blacklist: ["Campaigns"]
 };
-
-const persistedReducer = persistReducer(
-  rootPersistConfig,
-  combineReducers({ Authentication, Users, PublicAssets, Campaigns })
-);
+const campaignPersistConfig = {
+  key: "campaigns",
+  storage: storage,
+  blacklist: ["isTemplateSaved", "redirectAfterSave"]
+};
+const rootReducer = combineReducers({
+  Authentication,
+  Users,
+  PublicAssets,
+  Campaigns: persistReducer(campaignPersistConfig, Campaigns)
+});
+const persistedReducer = persistReducer(rootPersistConfig, rootReducer);
 const sagaMiddleware = createSagaMiddlware();
 let enhancer;
 if (window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
