@@ -11,6 +11,7 @@ import {
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 
 class AddTemplates extends React.Component {
+  thumbnailImg;
   state = {
     steps: [],
     example: "",
@@ -18,9 +19,13 @@ class AddTemplates extends React.Component {
     templateDescription: "",
     name: "",
     description: "",
-    examples: []
+    examples: [],
+    thumbnailFile: "",
+    thumbnailImgUrl: ""
   };
-
+  componentDidMount() {
+    this.thumbnailImg = this.refs.thumbnailImg;
+  }
   addNewStep = () => {
     const step = {
       title: this.state.title,
@@ -110,7 +115,7 @@ class AddTemplates extends React.Component {
                 <img
                   className="thumbnailImg"
                   alt="thumbnailImg"
-                  src="https://media.istockphoto.com/photos/law-should-know-concept-the-lawyer-explained-to-the-client-to-plan-picture-id944503634?k=6&m=944503634&s=612x612&w=0&h=sLdq_w0yE062amiwD04H-HkWYVptoMMhkqKvSEdm_nA="
+                  ref="thumbnailImg"
                 />
               </div>
             </div>
