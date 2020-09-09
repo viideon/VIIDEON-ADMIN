@@ -22,8 +22,8 @@ class ViewTemplates extends React.Component {
             Add Template
           </Button>
         </div>
-        <Grid container>
-          <Grid item xs={12} sm={6} md={3} lg={3} spacing={1}>
+        <Grid container spacing={1}>
+          <Grid item xs={12} sm={6} md={3} lg={3}>
             <CampaignTemplateCard />
           </Grid>
         </Grid>

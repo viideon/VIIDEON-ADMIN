@@ -6,21 +6,21 @@ import {
   Tooltip,
   List,
   ListItem,
-  ListItemText,
-  Card,
-  CardContent
+  ListItemText
 } from "@material-ui/core";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 
 class AddTemplates extends React.Component {
   state = {
     steps: [],
+    example: "",
     title: "",
     templateDescription: "",
     name: "",
     description: "",
     examples: []
   };
+
   addNewStep = () => {
     const step = {
       title: this.state.title,
@@ -43,9 +43,15 @@ class AddTemplates extends React.Component {
   uploadThumbnail = e => {
     alert("File selected");
   };
+  onExampleChange = e => {
+    this.setState({ example: e.target.value });
+  };
   onEnterPressed = e => {
     if (e.key === "Enter") {
-      this.setState({ examples: [...this.state.examples, e.target.value] });
+      this.setState({
+        examples: [...this.state.examples, this.state.example],
+        example: ""
+      });
     }
   };
   render() {
@@ -112,12 +118,17 @@ class AddTemplates extends React.Component {
               Add Steps to template
             </Typography>
             {this.state.steps.map((step, index) => (
-              <Card key={index}>
-                <CardContent>
-                  <h5>{step.title}</h5>
-                  <p>{step.description}</p>
-                </CardContent>
-              </Card>
+              <div key={index} className="cardSteps">
+                <h3>Step {index + 1}</h3>
+                <h5>Title : {step.title}</h5>
+                <h5>Description : {step.description}</h5>
+                <span>Examples</span>
+                <ul>
+                  {step.examples.map((example, index) => (
+                    <li key={index}>{example}</li>
+                  ))}
+                </ul>
+              </div>
             ))}
             <div className="wrapperStepDetails">
               <TextField
@@ -149,7 +160,10 @@ class AddTemplates extends React.Component {
                 label="Add Example"
                 variant="outlined"
                 fullWidth
+                value={this.state.example}
+                type="text"
                 margin="dense"
+                onChange={this.onExampleChange}
                 onKeyDown={this.onEnterPressed}
               />
             </div>
