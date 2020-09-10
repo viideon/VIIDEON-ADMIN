@@ -5,10 +5,14 @@ import {
   CardActions,
   CardContent,
   CardMedia,
-  Typography
+  Typography,
+  Button
 } from "@material-ui/core";
 
-const CampaignTemplateCard = ({ template }) => {
+const CampaignTemplateCard = ({ template, openUpdateModal }) => {
+  const edit = () => {
+    openUpdateModal(template);
+  };
   return (
     <Card>
       <CardActionArea>
@@ -27,7 +31,9 @@ const CampaignTemplateCard = ({ template }) => {
           </Typography>
         </CardContent>
       </CardActionArea>
-      <CardActions></CardActions>
+      <CardActions>
+        <Button onClick={edit}>Edit</Button>
+      </CardActions>
     </Card>
   );
 };
