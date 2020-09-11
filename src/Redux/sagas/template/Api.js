@@ -6,3 +6,6 @@ export const addTemplateApi = template => {
 export const getTemplatesApi = () => {
   return API.get("/campaign/templates");
 };
+export const updateTemplateApi = queryObj => {
+  return API.patch("/campaign/templates", queryObj);
+};

@@ -18,8 +18,9 @@ import Colors from "../../constants/colors";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import { toast } from "react-toastify";
 import { config } from "../../lib/aws";
-import { addCampaignTemplate } from "../../Redux/Actions/Template";
+import { updateTemplate } from "../../Redux/Actions/Template";
 import { Close } from "@material-ui/icons";
+import EditIcon from "@material-ui/icons/Edit";
 import "./style.css";
 
 class UpdateTemplate extends React.Component {
@@ -34,7 +35,13 @@ class UpdateTemplate extends React.Component {
     thumbnailUploading: false,
     thumbnailImgUrl: "",
     stepEdit: false,
-    editIndex: 0
+    editIndex: 0,
+    editStepTitle: "",
+    editStepDescription: "",
+    editStepExamples: [],
+    editStepExample: "",
+    isEditExample: false,
+    editExampleIndex: 0
   };
   componentDidMount() {
     this.intitializeStateFromProps();
@@ -49,7 +56,16 @@ class UpdateTemplate extends React.Component {
     });
   };
   onStepEdit = index => {
-    this.setState({ stepEdit: true, editIndex: index });
+    toast.info("Editor opened at the end of screen");
+    const step = this.state.steps[index];
+    this.setState({ stepEdit: true, editIndex: index }, () =>
+      this.setState({
+        editStepTitle: step.title,
+        editStepDescription: step.description,
+        editStepExamples: step.examples,
+        editStepExample: ""
+      })
+    );
   };
   addNewStep = () => {
     const step = {
@@ -65,6 +81,54 @@ class UpdateTemplate extends React.Component {
       });
     }
   };
+  editStep = () => {
+    const updatedStep = {
+      title: this.state.editStepTitle,
+      description: this.state.editStepDescription,
+      examples: this.state.editStepExamples
+    };
+    const steps = this.state.steps;
+    steps[this.state.editIndex] = updatedStep;
+    this.setState({
+      steps: steps,
+      stepEdit: false,
+      editStepTitle: "",
+      editStepDescription: "",
+      editStepExamples: []
+    });
+    toast.info("Step Edited");
+  };
+  onEnterToAddExample = e => {
+    if (e.key === "Enter") {
+      this.setState({
+        editStepExamples: [
+          ...this.state.editStepExamples,
+          this.state.editStepExample
+        ]
+      });
+    }
+  };
+  onEnterToEditExample = e => {
+    if (e.key === "Enter") {
+      const editStepExamples = this.state.editStepExamples;
+      editStepExamples[
+        this.state.editExampleIndex
+      ] = this.state.editStepExample;
+      this.setState({
+        editStepExamples: editStepExamples,
+        editStepExample: "",
+        isEditExample: false
+      });
+    }
+  };
+  componentWillReceiveProps(nextProps) {
+    if (
+      nextProps.closeModalAfterUpdate &&
+      nextProps.closeModalAfterUpdate !== this.props.closeModalAfterUpdate
+    ) {
+      this.props.handleClose();
+    }
+  }
   triggerThumbnailUpload = () => {
     this.refs.thumbnailUploadRef.click();
   };
@@ -97,8 +161,8 @@ class UpdateTemplate extends React.Component {
       toast.error("error in selecting file");
     }
   };
-  onExampleChange = e => {
-    this.setState({ example: e.target.value });
+  onChangeText = e => {
+    this.setState({ [e.target.name]: e.target.value });
   };
   onEnterPressed = e => {
     if (e.key === "Enter") {
@@ -108,7 +172,7 @@ class UpdateTemplate extends React.Component {
       });
     }
   };
-  saveTemplate = () => {
+  updateTemplate = () => {
     const { name, steps, thumbnailImgUrl, templateDescription } = this.state;
     if (name === "") {
       return toast.error("Template name is required");
@@ -128,11 +192,23 @@ class UpdateTemplate extends React.Component {
         templateThumbnailUrl: this.state.thumbnailImgUrl,
         totalSteps: this.state.steps.length
       };
-      this.props.addCampaignTemplate(template);
+      const queryObject = {
+        id: this.props.template._id,
+        template
+      };
+      this.props.updateTemplate(queryObject);
     }
   };
+  editExample = index => {
+    const example = this.state.steps[this.state.editIndex].examples[index];
+    this.setState({
+      isEditExample: true,
+      editExampleIndex: index,
+      editStepExample: example
+    });
+  };
   render() {
-    const { open, handleClose } = this.props;
+    const { open, handleClose, isTemplateUpdating } = this.props;
     return (
       <Modal open={open} onClose={handleClose} style={{ overflow: "auto" }}>
         <div
@@ -142,6 +218,11 @@ class UpdateTemplate extends React.Component {
           }}
         >
           <Card style={{ width: "60%", padding: "0 5% 5% 5%" }}>
+            {isTemplateUpdating && (
+              <div className="progressIcon">
+                <CircularProgress />
+              </div>
+            )}
             <div style={cardHeader}>
               <h4 style={{ color: "#000" }}>Edit Template</h4>
               <IconButton onClick={handleClose}>
@@ -220,19 +301,27 @@ class UpdateTemplate extends React.Component {
                       <li key={index}>{example}</li>
                     ))}
                   </ul>
-                  <Button onClick={() => this.onStepEdit(index)}>Edit</Button>
+                  <Button
+                    onClick={() => this.onStepEdit(index)}
+                    style={{ backgroundColor: Colors.lightGrey }}
+                  >
+                    Edit
+                  </Button>
                 </CardContent>
               </Card>
             ))}
             {this.state.stepEdit && (
               <>
                 <div className="wrapperStepDetails">
+                  <Typography variant="h6" gutterBottom>
+                    Editor
+                  </Typography>
                   <TextField
                     label="Step Title"
                     variant="outlined"
                     margin="dense"
-                    value={this.state.title}
-                    name="title"
+                    value={this.state.editStepTitle}
+                    name="editStepTitle"
                     onChange={this.onChangeText}
                   />
                   <TextField
@@ -240,37 +329,61 @@ class UpdateTemplate extends React.Component {
                     variant="outlined"
                     fullWidth
                     margin="dense"
-                    value={this.state.description}
-                    name="description"
+                    value={this.state.editStepDescription}
+                    name="editStepDescription"
                     onChange={this.onChangeText}
                   />
                   <p>Examples to explain the step</p>
                   <List>
-                    {this.state.examples.map((example, index) => (
+                    {this.state.editStepExamples.map((example, index) => (
                       <ListItem key={index}>
-                        <ListItemText secondary={`${example}`} />
+                        <div className="exampleEdit">
+                          <ListItemText secondary={`${example}`} />
+                          <span onClick={() => this.editExample(index)}>
+                            <EditIcon />
+                          </span>
+                        </div>
                       </ListItem>
                     ))}
                   </List>
-                  <TextField
-                    label="Add Example"
-                    variant="outlined"
-                    fullWidth
-                    value={this.state.example}
-                    type="text"
-                    margin="dense"
-                    onChange={this.onExampleChange}
-                    onKeyDown={this.onEnterPressed}
-                  />
+                  {this.state.isEditExample && (
+                    <TextField
+                      label="Edit Example"
+                      variant="outlined"
+                      fullWidth
+                      value={this.state.editStepExample}
+                      type="text"
+                      name="editStepExample"
+                      margin="dense"
+                      onChange={this.onChangeText}
+                      onKeyDown={this.onEnterToEditExample}
+                    />
+                  )}
+                  {!this.state.isEditExample && (
+                    <TextField
+                      label="Add Example"
+                      variant="outlined"
+                      name="editStepExample"
+                      fullWidth
+                      value={this.state.editStepExample}
+                      type="text"
+                      margin="dense"
+                      onChange={this.onChangeText}
+                      onKeyDown={this.onEnterToAddExample}
+                    />
+                  )}
                 </div>
-                <Button variant="contained" onClick={this.onStepEdit}>
-                  Update Step
+                <Button variant="contained" onClick={this.editStep}>
+                  Edit Step
                 </Button>
               </>
             )}
             {!this.state.stepEdit && (
               <>
                 <div className="wrapperStepDetails">
+                  <Typography variant="h6" gutterBottom>
+                    Editor
+                  </Typography>
                   <TextField
                     label="Step Title"
                     variant="outlined"
@@ -303,7 +416,8 @@ class UpdateTemplate extends React.Component {
                     value={this.state.example}
                     type="text"
                     margin="dense"
-                    onChange={this.onExampleChange}
+                    name="example"
+                    onChange={this.onChangeText}
                     onKeyDown={this.onEnterPressed}
                   />
                 </div>
@@ -315,7 +429,7 @@ class UpdateTemplate extends React.Component {
             <div className="wrapperSaveTemplateBtn">
               <Button
                 style={{ backgroundColor: Colors.themeBlue }}
-                onClick={this.saveTemplate}
+                onClick={this.updateTemplate}
               >
                 Update Template
               </Button>
@@ -327,7 +441,8 @@ class UpdateTemplate extends React.Component {
   }
 }
 const cardStyle = {
-  marginBottom: "5px"
+  marginBottom: "10px",
+  boxShadow: "0 0 4px #505050"
 };
 const cardHeader = {
   display: "flex",
@@ -337,14 +452,14 @@ const cardHeader = {
 
 const mapStateToProps = state => {
   return {
-    isTemplateSaved: state.Campaigns.isTemplateSaved,
-    redirectAfterSave: state.Campaigns.redirectAfterSave
+    isTemplateUpdating: state.Campaigns.isTemplateUpdating,
+    closeModalAfterUpdate: state.Campaigns.closeModalAfterUpdate
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    addCampaignTemplate: template => dispatch(addCampaignTemplate(template))
+    updateTemplate: template => dispatch(updateTemplate(template))
   };
 };
 export default connect(mapStateToProps, mapDispatchToProps)(UpdateTemplate);

@@ -8,3 +8,7 @@ export const addCampaignTemplate = template => ({
 export const getCampaignTemplates = () => ({
   type: types.GET_TEMPLATES
 });
+export const updateTemplate = queryObj => ({
+  type: types.UPDATE_TEMPLATE,
+  payload: queryObj
+});

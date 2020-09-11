@@ -1,7 +1,12 @@
 import types from "../Types/campaigns";
 
 const Campaigns = (
-  state = { isTemplateSaved: false, templates: [], redirectAfterSave: null },
+  state = {
+    isTemplateSaved: false,
+    templates: [],
+    redirectAfterSave: null,
+    closeModalAfterUpdate: null
+  },
   action
 ) => {
   switch (action.type) {
@@ -25,7 +30,18 @@ const Campaigns = (
     case types.GET_TEMPLATES_FAILURE:
       return { ...state, loadingTemplates: false };
     case types.TURN_TO_NULL:
-      return { ...state, redirectAfterSave: null };
+      return { ...state, redirectAfterSave: null, closeModalAfterUpdate: null };
+    case types.UPDATE_TEMPLATE:
+      return { ...state, isTemplateUpdating: true };
+    case types.UPDATE_TEMPLATE_SUCCESS:
+      return {
+        ...state,
+        isTemplateUpdating: false,
+        closeModalAfterUpdate: true,
+        templates: action.payload
+      };
+    case types.UPDATE_TEMPLATE_FAILURE:
+      return { ...state, isTemplateUpdating: false };
     default:
       return state;
   }

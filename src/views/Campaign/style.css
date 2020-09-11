@@ -52,3 +52,9 @@
   top: 50%;
   transform: translate(-50%, 0);
 }
+.exampleEdit {
+  display: flex;
+}
+.exampleEdit span {
+  cursor: pointer;
+}

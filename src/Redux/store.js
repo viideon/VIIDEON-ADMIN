@@ -17,7 +17,7 @@ const rootPersistConfig = {
 const campaignPersistConfig = {
   key: "campaigns",
   storage: storage,
-  blacklist: ["isTemplateSaved", "redirectAfterSave"]
+  blacklist: ["isTemplateSaved", "redirectAfterSave", "closeModalAfterUpdate"]
 };
 const rootReducer = combineReducers({
   Authentication,
