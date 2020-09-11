@@ -1,4 +1,5 @@
 import React from "react";
+import AWS from "aws-sdk";
 import {
   Modal,
   TextField,
@@ -20,10 +21,12 @@ import { toast } from "react-toastify";
 import { config } from "../../lib/aws";
 import { updateTemplate } from "../../Redux/Actions/Template";
 import { Close } from "@material-ui/icons";
+import CancelIcon from "@material-ui/icons/Cancel";
 import EditIcon from "@material-ui/icons/Edit";
 import "./style.css";
 
 class UpdateTemplate extends React.Component {
+  s3;
   state = {
     steps: [],
     example: "",
@@ -44,7 +47,16 @@ class UpdateTemplate extends React.Component {
     editExampleIndex: 0
   };
   componentDidMount() {
+    this.s3 = new AWS.S3(config);
     this.intitializeStateFromProps();
+  }
+  componentWillReceiveProps(nextProps) {
+    if (
+      nextProps.closeModalAfterUpdate &&
+      nextProps.closeModalAfterUpdate !== this.props.closeModalAfterUpdate
+    ) {
+      this.props.handleClose();
+    }
   }
   intitializeStateFromProps = () => {
     const { template } = this.props;
@@ -96,7 +108,7 @@ class UpdateTemplate extends React.Component {
       editStepDescription: "",
       editStepExamples: []
     });
-    toast.info("Step Edited");
+    toast.info("Edited");
   };
   onEnterToAddExample = e => {
     if (e.key === "Enter") {
@@ -121,14 +133,7 @@ class UpdateTemplate extends React.Component {
       });
     }
   };
-  componentWillReceiveProps(nextProps) {
-    if (
-      nextProps.closeModalAfterUpdate &&
-      nextProps.closeModalAfterUpdate !== this.props.closeModalAfterUpdate
-    ) {
-      this.props.handleClose();
-    }
-  }
+
   triggerThumbnailUpload = () => {
     this.refs.thumbnailUploadRef.click();
   };
@@ -207,23 +212,29 @@ class UpdateTemplate extends React.Component {
       editStepExample: example
     });
   };
+  removeStep = index => {
+    const steps = this.state.steps.filter((step, i) => i !== index);
+    this.setState({ steps: steps });
+    toast.info("Removed");
+  };
+  removeExample = index => {
+    const examples = this.state.editStepExamples.filter(
+      (example, i) => index !== i
+    );
+    this.setState({ editStepExamples: examples });
+  };
   render() {
     const { open, handleClose, isTemplateUpdating } = this.props;
     return (
       <Modal open={open} onClose={handleClose} style={{ overflow: "auto" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center"
-          }}
-        >
+        <div className="wrapperCardUpdate">
           <Card style={{ width: "60%", padding: "0 5% 5% 5%" }}>
             {isTemplateUpdating && (
               <div className="progressIcon">
                 <CircularProgress />
               </div>
             )}
-            <div style={cardHeader}>
+            <div className="cardHeader">
               <h4 style={{ color: "#000" }}>Edit Template</h4>
               <IconButton onClick={handleClose}>
                 <Close />
@@ -292,7 +303,17 @@ class UpdateTemplate extends React.Component {
             {this.state.steps.map((step, index) => (
               <Card key={index} style={cardStyle}>
                 <CardContent>
-                  <h3>Step {index + 1}</h3>
+                  <div className="cardHeader">
+                    <h3>Step {index + 1}</h3>
+                    <Tooltip title="Remove step" placement="top">
+                      <span
+                        onClick={() => this.removeStep(index)}
+                        className="removeIcon"
+                      >
+                        <CancelIcon />
+                      </span>
+                    </Tooltip>
+                  </div>
                   <h5>Title : {step.title}</h5>
                   <h5>Description : {step.description}</h5>
                   <span>Examples</span>
@@ -339,9 +360,19 @@ class UpdateTemplate extends React.Component {
                       <ListItem key={index}>
                         <div className="exampleEdit">
                           <ListItemText secondary={`${example}`} />
-                          <span onClick={() => this.editExample(index)}>
-                            <EditIcon />
-                          </span>
+                          <Tooltip title="Edit">
+                            <span onClick={() => this.editExample(index)}>
+                              <EditIcon />
+                            </span>
+                          </Tooltip>
+                          <Tooltip title="Remove" placement="top">
+                            <span
+                              onClick={() => this.removeExample(index)}
+                              className="removeIcon"
+                            >
+                              <CancelIcon />
+                            </span>
+                          </Tooltip>
                         </div>
                       </ListItem>
                     ))}
@@ -370,11 +401,12 @@ class UpdateTemplate extends React.Component {
                       margin="dense"
                       onChange={this.onChangeText}
                       onKeyDown={this.onEnterToAddExample}
+                      placeholder="Press Enter to edit"
                     />
                   )}
                 </div>
                 <Button variant="contained" onClick={this.editStep}>
-                  Edit Step
+                  Update
                 </Button>
               </>
             )}
@@ -419,6 +451,7 @@ class UpdateTemplate extends React.Component {
                     name="example"
                     onChange={this.onChangeText}
                     onKeyDown={this.onEnterPressed}
+                    placeholder="Press Enter after adding an example"
                   />
                 </div>
                 <Button variant="contained" onClick={this.addNewStep}>
@@ -428,7 +461,20 @@ class UpdateTemplate extends React.Component {
             )}
             <div className="wrapperSaveTemplateBtn">
               <Button
-                style={{ backgroundColor: Colors.themeBlue }}
+                style={{
+                  backgroundColor: Colors.red,
+                  marginRight: "5px",
+                  color: Colors.white
+                }}
+                onClick={handleClose}
+              >
+                Cancel
+              </Button>
+              <Button
+                style={{
+                  backgroundColor: Colors.themeBlue,
+                  color: Colors.white
+                }}
                 onClick={this.updateTemplate}
               >
                 Update Template
@@ -443,11 +489,6 @@ class UpdateTemplate extends React.Component {
 const cardStyle = {
   marginBottom: "10px",
   boxShadow: "0 0 4px #505050"
-};
-const cardHeader = {
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center"
 };
 
 const mapStateToProps = state => {

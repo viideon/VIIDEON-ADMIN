@@ -15,6 +15,7 @@ import {
 } from "@material-ui/core";
 import Colors from "../../constants/colors";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
+import VisibilityIcon from "@material-ui/icons/Visibility";
 import { toast } from "react-toastify";
 import { config } from "../../lib/aws";
 import { addCampaignTemplate } from "../../Redux/Actions/Template";
@@ -138,7 +139,7 @@ class AddTemplates extends React.Component {
           <Typography variant="h3">Add a new Template</Typography>
           <Button
             color="primary"
-            startIcon={<AddCircleIcon />}
+            startIcon={<VisibilityIcon />}
             variant="contained"
             onClick={this.viewTemplates}
           >
@@ -261,14 +262,18 @@ class AddTemplates extends React.Component {
                 margin="dense"
                 onChange={this.onExampleChange}
                 onKeyDown={this.onEnterPressed}
+                placeholder="Press Enter after adding an example"
               />
             </div>
             <Button variant="contained" onClick={this.addNewStep}>
-              Add step to template
+              Add step
             </Button>
             <div className="wrapperSaveTemplateBtn">
               <Button
-                style={{ backgroundColor: Colors.themeBlue }}
+                style={{
+                  backgroundColor: Colors.themeBlue,
+                  color: Colors.white
+                }}
                 onClick={this.saveTemplate}
               >
                 Save Template
