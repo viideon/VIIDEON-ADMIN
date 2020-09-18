@@ -9,7 +9,7 @@ import {
   Button
 } from "@material-ui/core";
 
-const CampaignTemplateCard = ({ template, openUpdateModal }) => {
+const CampaignTemplateCard = ({ template, openUpdateModal, handleDelete }) => {
   const edit = () => {
     openUpdateModal(template);
   };
@@ -33,7 +33,10 @@ const CampaignTemplateCard = ({ template, openUpdateModal }) => {
       </CardActionArea>
       <CardActions>
         <Button onClick={edit}>Edit</Button>
+        <Button color="secondary" data-confirm="Are you sure to delete this item?" onClick={() => {window.confirm("Are you sure to delete this template?") && handleDelete(template)}}>Delete</Button>
       </CardActions>
+      {/* <CardActions>
+      </CardActions> */}
     </Card>
   );
 };

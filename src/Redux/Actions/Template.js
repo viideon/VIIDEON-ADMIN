@@ -12,3 +12,9 @@ export const updateTemplate = queryObj => ({
   type: types.UPDATE_TEMPLATE,
   payload: queryObj
 });
+export const deleteTemplate = (id) => {
+  return {
+    type: types.DELETE_TEMPLATE_REQUEST,
+    payload: id
+  }
+}

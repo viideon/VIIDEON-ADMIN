@@ -4,6 +4,7 @@ import { connect } from "react-redux";
 import AddCircleIcon from "@material-ui/icons/AddCircle";
 import CampaignTemplateCard from "../../components/CampaignTemplateCard";
 import UpdateTemplate from "./UpdateTemplate";
+import { deleteTemplate } from '../../Redux/Actions/Template';
 import "./style.css";
 
 class ViewTemplates extends React.Component {
@@ -22,6 +23,10 @@ class ViewTemplates extends React.Component {
   addTemplate = () => {
     this.props.changeCurrentComponent(2);
   };
+
+  handleDelete = (template) => {
+    this.props.deleteTemplate(template?._id)
+  }
 
   render() {
     const { templates } = this.props;
@@ -53,6 +58,7 @@ class ViewTemplates extends React.Component {
                 <CampaignTemplateCard
                   template={template}
                   openUpdateModal={this.openUpdateModal}
+                  handleDelete={this.handleDelete}
                 />
               </Grid>
             ))}
@@ -66,4 +72,10 @@ const mapStateToProps = state => {
     templates: state.Campaigns.templates
   };
 };
-export default connect(mapStateToProps)(ViewTemplates);
+
+const mapDispatchToProps = dispatch => {
+  return {
+    deleteTemplate : (id) => dispatch(deleteTemplate(id))
+  }
+}
+export default connect(mapStateToProps, mapDispatchToProps)(ViewTemplates);

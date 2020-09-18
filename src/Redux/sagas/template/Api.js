@@ -9,3 +9,6 @@ export const getTemplatesApi = () => {
 export const updateTemplateApi = queryObj => {
   return API.patch("/campaign/templates", queryObj);
 };
+export const deleteTemplateApi = id => {
+  return API.delete(`/campaign/templates/${id}`)
+}

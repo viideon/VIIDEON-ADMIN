@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect} from "react";
 // core components
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
@@ -11,6 +11,80 @@ import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import { connect } from "react-redux";
 import { loadUserAction } from "../../Redux/Actions/Users";
 import { primaryColor } from "../../assets/jss/material-dashboard-react";
+
+
+const tableHead = ["Sr #","First Name", "Last Name", "Email", "User Name", "Avatar Url"];
+const UsersList = (props) =>  {
+  const [xPages, setPages] = useState(1)
+  const [users, setUsers] = useState(props.Users.users)
+  const classes = styles;
+  
+  useEffect(() => {
+    props.getUsers(1, 10);
+  }, []) 
+  
+  const updatePages = () => {
+    if(users !== props.Users.users) {
+      setUsers(props.Users.users)
+      let pages = props.Users.pageCount / 10;
+      if(pages % 1 !== 0){
+        pages = parseInt(pages) + 1;
+      }
+      setPages(pages);
+    }
+  }
+  
+  const mapUsers = () =>
+    users?.map((user, index) => [
+      index,
+      user.firstName,
+      user.lastName,
+      user.email,
+      user.userName,
+      user.url
+    ]);
+  const onPageChange = (...params) => {
+    console.log(params)
+    props.getUsers(params[1], 10)
+  };
+
+  return (
+    <GridContainer>
+      <GridItem xs={12} sm={12} md={12}>
+        <Card>
+          <CardHeader color="primary">
+            <h4 className={classes?.cardTitleWhite}>Users</h4>
+          </CardHeader>
+          <CardBody>
+            <Table
+              tableHeaderColor="primary"
+              tableHead={tableHead}
+              tableData={props.Users.users ? mapUsers() : []}
+            />
+          </CardBody>
+          <GridItem xs={12} sm={12} md={12}>
+            <div style={classes?.paginationContainer}>
+              <ThemeProvider theme={theme}>
+                <Pagination
+                  variant="outlined"
+                  shape="rounded"
+                  color="primary"
+                  defaultPage={updatePages() && 1}
+                  onChange={onPageChange}
+                  count={
+                    xPages
+                  }
+                />
+              </ThemeProvider>
+            </div>
+          </GridItem>
+        </Card>
+      </GridItem>
+    </GridContainer>
+  )
+}
+
+
 
 const theme = createMuiTheme({
   palette: {
@@ -55,60 +129,13 @@ const styles = {
   }
 };
 
-class UsersList extends React.Component {
-  componentDidMount() {
-    this.props.dispatch(loadUserAction(1));
-  }
-  tableHead = ["First Name", "Last Name", "Email", "User Name", "Avatar Url"];
-  mapUsers = () =>
-    this.props.Users.users.docs.map(user => [
-      user.firstName,
-      user.lastName,
-      user.email,
-      user.userName,
-      user.url
-    ]);
-  onPageChange = (...params) => this.props.dispatch(loadUserAction(params[1]));
+const mapStoreToProps = store => ({ 
+  Users: store.Users 
+});
 
-  render() {
-    const classes = styles;
-    return (
-      <GridContainer>
-        <GridItem xs={12} sm={12} md={12}>
-          <Card>
-            <CardHeader color="primary">
-              <h4 className={classes.cardTitleWhite}>Users</h4>
-            </CardHeader>
-            <CardBody>
-              <Table
-                tableHeaderColor="primary"
-                tableHead={this.tableHead}
-                tableData={this.props.Users.users ? this.mapUsers() : []}
-              />
-            </CardBody>
-            <GridItem xs={12} sm={12} md={12}>
-              <div style={classes.paginationContainer}>
-                <ThemeProvider theme={theme}>
-                  <Pagination
-                    variant="outlined"
-                    shape="rounded"
-                    color="primary"
-                    defaultPage={1}
-                    page={this.props.Users.users && this.props.Users.users.page}
-                    onChange={this.onPageChange}
-                    count={
-                      this.props.Users.users &&
-                      this.props.Users.users.totalPages
-                    }
-                  />
-                </ThemeProvider>
-              </div>
-            </GridItem>
-          </Card>
-        </GridItem>
-      </GridContainer>
-    );
+const mapDispatchToProps = dispatch => {
+  return {
+    getUsers: (pageNumber, pageSize) => dispatch(loadUserAction(pageNumber, pageSize)),
   }
 }
-const mapStoreToProps = store => ({ Users: store.Users });
-export default connect(mapStoreToProps)(UsersList);
+export default connect(mapStoreToProps, mapDispatchToProps)(UsersList);
