@@ -19,6 +19,12 @@ import VisibilityIcon from "@material-ui/icons/Visibility";
 import { toast } from "react-toastify";
 import { config } from "../../lib/aws";
 import { addCampaignTemplate } from "../../Redux/Actions/Template";
+
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
 import "./style.css";
 
 class AddTemplates extends React.Component {
@@ -32,7 +38,9 @@ class AddTemplates extends React.Component {
     description: "",
     examples: [],
     thumbnailUploading: false,
-    thumbnailImgUrl: ""
+    thumbnailImgUrl: "",
+    industryId: "",
+    stpDuration: 0,
   };
   componentDidMount() {
     this.s3 = new AWS.S3(config);
@@ -49,13 +57,14 @@ class AddTemplates extends React.Component {
     const step = {
       title: this.state.title,
       description: this.state.description,
+      duration: this.state.stpDuration,
       examples: this.state.examples
     };
     if (step.title === "" || step.description === "") {
       toast.info("Please fill the field to add a step to template");
     } else {
       this.setState({ steps: [...this.state.steps, step] }, () => {
-        this.setState({ title: "", description: "", examples: [] });
+        this.setState({ title: "", description: "", examples: [], stpDuration: 0 });
       });
     }
   };
@@ -109,8 +118,10 @@ class AddTemplates extends React.Component {
     }
   };
   saveTemplate = () => {
-    const { name, steps, thumbnailImgUrl, templateDescription } = this.state;
-    if (name === "") {
+    const { name, steps, thumbnailImgUrl, templateDescription, industryId } = this.state;
+    if (!industryId) {
+      return toast.error("Select Industry First!")
+    } else if (name === "") {
       return toast.error("Template name is required");
     } else if (templateDescription === "") {
       return toast.error("Template description is required");
@@ -121,18 +132,27 @@ class AddTemplates extends React.Component {
         "You need to add atleast one step for campaign templates"
       );
     } else {
+      let duration = 0;
+      steps.filter(step => {
+        if(step.duration) duration += Number(step.duration);
+        return step;
+      })
       const template = {
         name: this.state.name,
         templateDescription: this.state.templateDescription,
         steps: this.state.steps,
         templateThumbnailUrl: this.state.thumbnailImgUrl,
-        totalSteps: this.state.steps.length
+        totalSteps: this.state.steps.length,
+        industryId: this.state.industryId,
+        duration
       };
       this.props.addCampaignTemplate(template);
     }
   };
+
   render() {
-    const { isTemplateSaved } = this.props;
+    const { isTemplateSaved, industries } = this.props;
+    const { industryId } = this.state;
     return (
       <>
         <div className="headerCampaignTemplate">
@@ -153,6 +173,22 @@ class AddTemplates extends React.Component {
         )}
         <div className="wrapperFormTemplate">
           <div className="addTemplateForm">
+            <FormControl variant="outlined" fullWidth >
+              <InputLabel id="selectIndustry">Select Industry</InputLabel>
+              <Select
+                labelId="selectIndustry"
+                id="demo-simple-select"
+                value={industryId}
+                name="industryId"
+                onChange={this.onChangeText}
+              >
+                { industries &&
+                  industries.map((industry, index) => {
+                    return <MenuItem key={index} value={industry._id} >{industry.name}</MenuItem>
+                  })
+                }
+              </Select>
+            </FormControl>
             <TextField
               label="Template Name"
               variant="outlined"
@@ -218,6 +254,7 @@ class AddTemplates extends React.Component {
                   <h3>Step {index + 1}</h3>
                   <h5>Title : {step.title}</h5>
                   <h5>Description : {step.description}</h5>
+                  <h5>Duration : {step.duration ? step.duration : 0} seconds </h5>
                   <span>Examples</span>
                   <ul>
                     {step.examples.map((example, index) => (
@@ -243,6 +280,16 @@ class AddTemplates extends React.Component {
                 margin="dense"
                 value={this.state.description}
                 name="description"
+                onChange={this.onChangeText}
+              />
+              <TextField
+                label="Step Duration ( in seconds )"
+                variant="outlined"
+                fullWidth
+                margin="dense"
+                value={this.state.stpDuration}
+                name="stpDuration"
+                type="number"
                 onChange={this.onChangeText}
               />
               <p>Examples to explain the step</p>
@@ -290,6 +337,7 @@ const cardStyle = {
 };
 const mapStateToProps = state => {
   return {
+    industries: state.Campaigns.industries,
     isTemplateSaved: state.Campaigns.isTemplateSaved,
     redirectAfterSave: state.Campaigns.redirectAfterSave
   };

@@ -6,3 +6,7 @@ export const getToken = store => {
 export const getTemplates = store => {
   return store.Campaigns.templates ? store.Campaigns.templates : null;
 };
+
+export const getIndustries = store => {
+  return store.Campaigns.industries;
+}

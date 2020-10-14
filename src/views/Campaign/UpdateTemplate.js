@@ -23,6 +23,13 @@ import { updateTemplate } from "../../Redux/Actions/Template";
 import { Close } from "@material-ui/icons";
 import CancelIcon from "@material-ui/icons/Cancel";
 import EditIcon from "@material-ui/icons/Edit";
+
+
+import InputLabel from '@material-ui/core/InputLabel';
+import MenuItem from '@material-ui/core/MenuItem';
+import FormControl from '@material-ui/core/FormControl';
+import Select from '@material-ui/core/Select';
+
 import "./style.css";
 
 class UpdateTemplate extends React.Component {
@@ -34,6 +41,7 @@ class UpdateTemplate extends React.Component {
     templateDescription: "",
     name: "",
     description: "",
+    industryId: "",
     examples: [],
     thumbnailUploading: false,
     thumbnailImgUrl: "",
@@ -44,7 +52,9 @@ class UpdateTemplate extends React.Component {
     editStepExamples: [],
     editStepExample: "",
     isEditExample: false,
-    editExampleIndex: 0
+    editExampleIndex: 0,
+    editStepDuration: 0,
+    stpDuration: 0,
   };
   componentDidMount() {
     this.s3 = new AWS.S3(config);
@@ -64,7 +74,8 @@ class UpdateTemplate extends React.Component {
       steps: template.steps,
       name: template.name,
       templateDescription: template.templateDescription,
-      thumbnailImgUrl: template.templateThumbnailUrl
+      thumbnailImgUrl: template.templateThumbnailUrl,
+      industryId: template.industryId
     });
   };
   onStepEdit = index => {
@@ -75,7 +86,8 @@ class UpdateTemplate extends React.Component {
         editStepTitle: step.title,
         editStepDescription: step.description,
         editStepExamples: step.examples,
-        editStepExample: ""
+        editStepExample: "",
+        editStepDuration: step.duration,
       })
     );
   };
@@ -83,7 +95,8 @@ class UpdateTemplate extends React.Component {
     const step = {
       title: this.state.title,
       description: this.state.description,
-      examples: this.state.examples
+      examples: this.state.examples,
+      duration: this.state.stpDuration
     };
     if (step.title === "" || step.description === "") {
       toast.info("Please fill the field to add a step to template");
@@ -97,7 +110,8 @@ class UpdateTemplate extends React.Component {
     const updatedStep = {
       title: this.state.editStepTitle,
       description: this.state.editStepDescription,
-      examples: this.state.editStepExamples
+      examples: this.state.editStepExamples,
+      duration: this.state.editStepDuration,
     };
     const steps = this.state.steps;
     steps[this.state.editIndex] = updatedStep;
@@ -106,7 +120,8 @@ class UpdateTemplate extends React.Component {
       stepEdit: false,
       editStepTitle: "",
       editStepDescription: "",
-      editStepExamples: []
+      editStepExamples: [],
+      editStepDuration: 0,
     });
     toast.info("Edited");
   };
@@ -178,24 +193,31 @@ class UpdateTemplate extends React.Component {
     }
   };
   updateTemplate = () => {
-    const { name, steps, thumbnailImgUrl, templateDescription } = this.state;
-    if (name === "") {
+    const { name, steps, thumbnailImgUrl, templateDescription, industryId } = this.state;
+    if (!industryId) {
+      return toast.error("Select Industry First!")
+    } else if (name === "") {
       return toast.error("Template name is required");
     } else if (templateDescription === "") {
       return toast.error("Template description is required");
     } else if (thumbnailImgUrl === "") {
       return toast.error("Template thumbnail is required");
     } else if (!steps.length) {
-      return toast.error(
-        "You need to add atleast one step for campaign templates"
-      );
+      return toast.error("You need to add atleast one step for campaign templates");
     } else {
+
+      let duration = 0;
+      steps.filter(step => {
+        if(step.duration) duration = duration + Number(step.duration);
+      })
       const template = {
         name: this.state.name,
         templateDescription: this.state.templateDescription,
         steps: this.state.steps,
         templateThumbnailUrl: this.state.thumbnailImgUrl,
-        totalSteps: this.state.steps.length
+        totalSteps: this.state.steps.length,
+        industryId: this.state.industryId,
+        duration
       };
       const queryObject = {
         id: this.props.template._id,
@@ -224,7 +246,8 @@ class UpdateTemplate extends React.Component {
     this.setState({ editStepExamples: examples });
   };
   render() {
-    const { open, handleClose, isTemplateUpdating } = this.props;
+    const { open, handleClose, isTemplateUpdating, industries } = this.props;
+    const { industryId } = this.state;
     return (
       <Modal open={open} onClose={handleClose} style={{ overflow: "auto" }}>
         <div className="wrapperCardUpdate">
@@ -240,6 +263,24 @@ class UpdateTemplate extends React.Component {
                 <Close />
               </IconButton>
             </div>
+
+            <FormControl variant="outlined" fullWidth >
+              <InputLabel id="selectIndustry">Select Industry</InputLabel>
+              <Select
+                labelId="selectIndustry"
+                id="demo-simple-select"
+                value={industryId}
+                name="industryId"
+                onChange={this.onChangeText}
+              >
+                { industries &&
+                  industries.map((industry, index) => {
+                    return <MenuItem key={index} value={industry._id} >{industry.name}</MenuItem>
+                  })
+                }
+              </Select>
+            </FormControl>
+
             <TextField
               label="Template Name"
               variant="outlined"
@@ -316,6 +357,7 @@ class UpdateTemplate extends React.Component {
                   </div>
                   <h5>Title : {step.title}</h5>
                   <h5>Description : {step.description}</h5>
+                  <h5>Duration : {step.duration ? step.duration : 0} seconds </h5>
                   <span>Examples</span>
                   <ul>
                     {step.examples.map((example, index) => (
@@ -352,6 +394,15 @@ class UpdateTemplate extends React.Component {
                     margin="dense"
                     value={this.state.editStepDescription}
                     name="editStepDescription"
+                    onChange={this.onChangeText}
+                  />
+                  <TextField
+                    label="Step Duration ( in Seconds )"
+                    variant="outlined"
+                    fullWidth
+                    margin="dense"
+                    value={this.state.editStepDuration}
+                    name="editStepDuration"
                     onChange={this.onChangeText}
                   />
                   <p>Examples to explain the step</p>
@@ -433,6 +484,16 @@ class UpdateTemplate extends React.Component {
                     name="description"
                     onChange={this.onChangeText}
                   />
+                  <TextField
+                    label="Step Duration ( in Seconds )"
+                    variant="outlined"
+                    fullWidth
+                    margin="dense"
+                    value={this.state.stpDuration}
+                    name="stpDuration"
+                    type="number"
+                    onChange={this.onChangeText}
+                  />
                   <p>Examples to explain the step</p>
                   <List>
                     {this.state.examples.map((example, index) => (
@@ -493,6 +554,7 @@ const cardStyle = {
 
 const mapStateToProps = state => {
   return {
+    industries: state.Campaigns.industries,
     isTemplateUpdating: state.Campaigns.isTemplateUpdating,
     closeModalAfterUpdate: state.Campaigns.closeModalAfterUpdate
   };
