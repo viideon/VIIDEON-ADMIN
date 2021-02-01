@@ -9,3 +9,10 @@ export const getSignedUrl = token =>
   API.get("/publicAssets/getSignedUrlForAssetUploading", {
     headers: { authorization: "bearer " + token }
   });
+  export async function addMusicAsset(newAsset) {
+    console.log("in api",newAsset)
+    return API.post("/asset/addpublicmusic", newAsset);
+  }
+  export async function getPublicMusicApi() {
+    return API.get("/asset/getpublicmusic");
+  }

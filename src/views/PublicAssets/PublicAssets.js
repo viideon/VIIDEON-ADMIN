@@ -1,12 +1,14 @@
 import React from "react";
 
 import GridItem from "components/Grid/GridItem.js";
+import { toast, Flip } from "react-toastify";
 import GridContainer from "components/Grid/GridContainer.js";
 import Table from "components/Table/Table.js";
 import Card from "components/Card/Card.js";
 import CardHeader from "components/Card/CardHeader.js";
 import CardBody from "components/Card/CardBody.js";
-import { Button } from "@material-ui/core";
+import { Button , Grid } from "@material-ui/core";
+import { config } from "../../lib/aws";
 import AddModal from "./AddModal";
 import { primaryColor } from "../../assets/jss/material-dashboard-react";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
@@ -14,8 +16,12 @@ import { connect } from "react-redux";
 import {
   loadPublicAssetAction,
   addNewPublicAsset,
+  getPublicMusicAsset,
 } from "Redux/Actions/PublicAssets";
 
+import AWS from "aws-sdk";
+import S3FileUpload from "react-s3";
+const s3 = new AWS.S3(config);
 const theme = createMuiTheme({
   palette: {
     primary: {
@@ -66,7 +72,17 @@ class PublicAssets extends React.Component {
     isAddModalOpen: false,
     title: "",
     file: null,
+    url:"",
+    assetUploading:false,
+    backgroundMusicUrl:"",
+    musicFile:null,
+    musicFileSelected:false,
+    assetUploading:false
   };
+  componentDidMount() {
+    // this.props.dispatch(loadPublicAssetAction());
+    this.props.getPublicMusicAsset();
+  }
   openAddModel = () => this.setState({ isAddModalOpen: true });
   closeAddModal = () => this.setState({ isAddModalOpen: false });
   inputChangeHandler = (evt) => {
@@ -77,11 +93,55 @@ class PublicAssets extends React.Component {
       this.setState({ [name]: value });
     }
   };
-  onSaveHander = () => this.props.dispatch(addNewPublicAsset());
-  componentDidMount() {
-    this.props.dispatch(loadPublicAssetAction());
+  onSaveHander = () => {
+    console.log("title is ",this.state.title)
+    console.log("file is ",this.state.file)
+
+    if (this.state.title === "") {
+      toast.error("Please add a title for music asset");
+    } else if(this.state.file === null){
+      toast.error("Please add a music file");
+    } else {
+      toast.info("Uploading music please wait");
+      this.setState({ assetUploading: true });
+      const musicOptions = {
+        Bucket: config.bucketName,
+        ACL: config.ACL,
+        Key: Date.now().toString() + this.state.file.name,
+        Body: this.state.file,
+      };
+      s3.upload(musicOptions, (err, data) => {
+        if (err) {
+          toast.error(err);
+          this.setState({ assetUploading: false });
+          return;
+        }
+        toast.info("Asset Uploaded");
+        this.setState({
+          backgroundMusicUrl: data.Location,
+          file: null,
+          musicFileSelected: false,
+          assetUploading: false,
+          url:data.Location,
+          title:this.state.title
+        });
+        console.log("music url is ",this.state.url,this.state.title)
+        this.props.addNewPublicAsset({asset:{url:this.state.url,title:this.state.title}});
+        this.setState({ isAddModalOpen: false,title:"",url:"" })
+        // this.props.addMusicAsset({
+        //   url: data.Location,
+        //   title: this.state.musicTitle,
+        // });
+      });
+    }
+    // this.props.dispatch(addNewPublicAsset());
+    
+    
   }
+  
+  
   render() {
+    const { templates , publicMusic} = this.props;
     console.log(this.props);
     const { isAddModalOpen, title, file } = this.state;
     return (
@@ -107,6 +167,37 @@ class PublicAssets extends React.Component {
                 />
               </CardBody>
             </Card>
+            {console.log("public music is ",this.props.publicMusic)}
+            <Grid container>
+                {this.props.publicMusic &&
+                  this.props.publicMusic.map((asset, i) => (
+                    <Grid item md={4} lg={4} sm={6} key={i}>
+                      <div className="pickerHeaderMusic">
+                        {/* <Radio
+                          checked={i === this.state.currenSelection}
+                          onChange={() => this.selectAsset(asset.url, i)}
+                          value={i}
+                          color="default"
+                          size="small"
+                        /> */}
+                        <h5
+                          className={
+                            i === this.state.currenSelection
+                              ? "selectedMusicHeading"
+                              : "musicHeading"
+                          }
+                        >
+                          {asset.title}
+                        </h5>
+                      </div>
+                      <audio
+                        src={asset.url}
+                        controls
+                        style={{ outline: "none" }}
+                      />
+                    </Grid>
+                  ))}
+              </Grid>
           </GridItem>
           <AddModal
             inputChangeHandler={this.inputChangeHandler}
@@ -121,5 +212,19 @@ class PublicAssets extends React.Component {
     );
   }
 }
+const mapStateToProps = state => {
+  return {
+    templates: state.Campaigns.templates,
+    publicMusic:state.PublicAssets.publicAssets
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    getPublicMusicAsset: () => dispatch(getPublicMusicAsset()),
+    addNewPublicAsset:(audioData)=>dispatch(addNewPublicAsset(audioData))
+    
+  }
+}
 const mapStoreToProps = (store) => ({ Assets: store.PublicAssets });
-export default connect(mapStoreToProps)(PublicAssets);
+export default connect(mapStateToProps,mapDispatchToProps)(PublicAssets);

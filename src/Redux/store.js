@@ -3,7 +3,7 @@ import createSagaMiddlware from "redux-saga";
 import { persistReducer, persistStore } from "redux-persist";
 import storage from "redux-persist/lib/storage";
 import Authentication from "./Reducers/Authentication";
-import Campaigns from "./Reducers/Campaigns";
+import Campaigns from "./Reducers/campaigns";
 import Users from "./Reducers/Users";
 import rootSaga from "./sagas";
 import PublicAssets from "./Reducers/PublicAssets";
