@@ -12,3 +12,9 @@ export const usersLoadingFailed = (errMessage) => ({
   type: types.USERS_LOADED_FAILED,
   payload: errMessage,
 });
+
+export const userRemoveAction = (id)=>({
+  type: types.USER_REMOVE,
+  payload: id,
+});
+

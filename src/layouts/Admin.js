@@ -75,8 +75,8 @@ export default function Admin({ ...rest }) {
     <div className={classes.wrapper}>
       <Sidebar
         routes={routes}
-        logoText={"VideonPro"}
-        logo={officialLogo}
+        logoText={"Viideon"}
+        logo="https://videonpro.s3.us-west-1.amazonaws.com/1617972064558logo.jpeg"
         image={image}
         handleDrawerToggle={handleDrawerToggle}
         open={mobileOpen}

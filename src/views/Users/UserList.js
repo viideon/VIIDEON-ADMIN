@@ -10,7 +10,9 @@ import { Pagination } from "@material-ui/lab";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
 import { connect } from "react-redux";
 import { loadUserAction } from "../../Redux/Actions/Users";
+import { userRemoveAction } from "../../Redux/Actions/Users";
 import { primaryColor } from "../../assets/jss/material-dashboard-react";
+import DeleteIcon from "@material-ui/icons/Delete";
 
 
 const tableHead = ["Sr #","First Name", "Last Name", "Email", "User Name", "Avatar Url"];
@@ -34,6 +36,10 @@ const UsersList = (props) =>  {
     }
   }
   
+  // const onClick = (id)=>{
+  //     console.log('component',id);
+  //     userRemove(id);
+  // }
   const mapUsers = () =>
     users?.map((user, index) => [
       index,
@@ -41,12 +47,19 @@ const UsersList = (props) =>  {
       user.lastName,
       user.email,
       user.userName,
-      user.url
+      user.url,
+      <button className="squareBtn red"
+      onClick={()=>{
+        props.userRemove(user._id)
+      }}><DeleteIcon fontSize="small" htmlColor="#fff" /></button>,
     ]);
+    
   const onPageChange = (...params) => {
     console.log(params)
     props.getUsers(params[1], 10)
   };
+
+
 
   return (
     <GridContainer>
@@ -136,6 +149,7 @@ const mapStoreToProps = store => ({
 const mapDispatchToProps = dispatch => {
   return {
     getUsers: (pageNumber, pageSize) => dispatch(loadUserAction(pageNumber, pageSize)),
+    userRemove: (id) => dispatch(userRemoveAction(id))
   }
 }
 export default connect(mapStoreToProps, mapDispatchToProps)(UsersList);

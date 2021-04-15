@@ -1,8 +1,8 @@
-import { put, takeEvery, select } from "redux-saga/effects";
+import { put, takeEvery, select, call} from "redux-saga/effects";
 import * as types from "../../actionTypes";
-import { getUsersApi } from "./Api";
+import { getUsersApi, removeUserApi } from "./Api";
 import { toast } from "react-toastify";
-import { usersLoadedAction, usersLoadingFailed } from "../../Actions/Users";
+import { usersLoadedAction, usersLoadingFailed , userRemoveAction} from "../../Actions/Users";
 import { getToken } from "../../Selectors";
 const getUsers = function* (action) {
   try {
@@ -21,7 +21,24 @@ const getUsers = function* (action) {
     }
   }
 };
+const userRemoveSaga = function* (action) {
+  console.log('saga',action.payload)
+  try {
+    const token = yield select(getToken);
+
+    const user = yield removeUserApi(action.payload, token);
+    console.log('saga call',user)
+    yield put( {type: "USER_REMOVE_S", payload: action.payload } );
+  } catch (err) {
+   console.log(err)
+  }
+};
+
+
 
 export function* usersWatcher() {
   yield takeEvery(types.LOAD_USERS, getUsers);
+  yield takeEvery(types.USER_REMOVE, userRemoveSaga);
 }
+
+
