@@ -10,7 +10,6 @@ export const getSignedUrl = token =>
     headers: { authorization: "bearer " + token }
   });
   export async function addMusicAsset(newAsset) {
-    console.log("in api",newAsset)
     return API.post("/asset/addpublicmusic", newAsset);
   }
   export async function getPublicMusicApi() {

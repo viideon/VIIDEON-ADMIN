@@ -7,7 +7,6 @@ import { getTemplates } from "../../Selectors";
 const addCampaignTemplate = function* (action) {
   try {
     const result = yield addTemplateApi(action.payload);
-    console.log("result", result);
     if (result.status === 201) {
       yield put({
         type: types.ADD_CAMPAIGN_TEMPLATE_SUCCESS,
@@ -20,7 +19,6 @@ const addCampaignTemplate = function* (action) {
       toast.error("Error adding template");
     }
   } catch (error) {
-    console.log("result", error);
     if (error.response) {
       const errorMessage = error.response.data.message;
       toast.error(errorMessage);

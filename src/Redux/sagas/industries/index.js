@@ -73,7 +73,6 @@ function* updateIndustry(action) {
       toast.error("Unexpected error,failed to update industry");
     }
   } catch (error) {
-    console.log("ERROR: ", error)
     if (error.response) {
       const errorMessage = error.response.data.message;
       toast.error(errorMessage);

@@ -1,5 +1,4 @@
 import React, { useState, useEffect} from "react";
-// core components
 import GridItem from "components/Grid/GridItem.js";
 import GridContainer from "components/Grid/GridContainer.js";
 import Table from "components/Table/Table.js";
@@ -36,10 +35,6 @@ const UsersList = (props) =>  {
     }
   }
   
-  // const onClick = (id)=>{
-  //     console.log('component',id);
-  //     userRemove(id);
-  // }
   const mapUsers = () =>
     users?.map((user, index) => [
       index,
@@ -55,7 +50,6 @@ const UsersList = (props) =>  {
     ]);
     
   const onPageChange = (...params) => {
-    console.log(params)
     props.getUsers(params[1], 10)
   };
 

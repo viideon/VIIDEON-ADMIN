@@ -80,7 +80,6 @@ class PublicAssets extends React.Component {
     assetUploading:false
   };
   componentDidMount() {
-    // this.props.dispatch(loadPublicAssetAction());
     this.props.getPublicMusicAsset();
   }
   openAddModel = () => this.setState({ isAddModalOpen: true });
@@ -94,8 +93,6 @@ class PublicAssets extends React.Component {
     }
   };
   onSaveHander = () => {
-    console.log("title is ",this.state.title)
-    console.log("file is ",this.state.file)
 
     if (this.state.title === "") {
       toast.error("Please add a title for music asset");
@@ -125,16 +122,11 @@ class PublicAssets extends React.Component {
           url:data.Location,
           title:this.state.title
         });
-        console.log("music url is ",this.state.url,this.state.title)
         this.props.addNewPublicAsset({asset:{url:this.state.url,title:this.state.title}});
         this.setState({ isAddModalOpen: false,title:"",url:"" })
-        // this.props.addMusicAsset({
-        //   url: data.Location,
-        //   title: this.state.musicTitle,
-        // });
+        
       });
     }
-    // this.props.dispatch(addNewPublicAsset());
     
     
   }
@@ -142,7 +134,6 @@ class PublicAssets extends React.Component {
   
   render() {
     const { templates , publicMusic} = this.props;
-    console.log(this.props);
     const { isAddModalOpen, title, file } = this.state;
     return (
       <ThemeProvider theme={theme}>
@@ -167,7 +158,6 @@ class PublicAssets extends React.Component {
                 />
               </CardBody>
             </Card>
-            {console.log("public music is ",this.props.publicMusic)}
             <Grid container>
                 {this.props.publicMusic &&
                   this.props.publicMusic.map((asset, i) => (

@@ -22,12 +22,11 @@ const getUsers = function* (action) {
   }
 };
 const userRemoveSaga = function* (action) {
-  console.log('saga',action.payload)
   try {
     const token = yield select(getToken);
 
     const user = yield removeUserApi(action.payload, token);
-    console.log('saga call',user)
+    
     yield put( {type: "USER_REMOVE_S", payload: action.payload } );
   } catch (err) {
    console.log(err)

@@ -27,7 +27,6 @@ const getAssets = function* () {
 
 const addNewAsset = function* (action) {
   try {
-    // console.log("in addnewasset",action.payload)
     const result = yield addMusicAsset(action.payload);
     if (result.status === 201) {
       yield put({ type: "ADD_NEW_ASSET" });
@@ -37,26 +36,16 @@ const addNewAsset = function* (action) {
     } else {
       toast.error("Failed to add your asset try again");
     }
-    // const token = yield select(store => store.Authentication.user.token);
-    // const signedUrlResp = yield getSignedUrl(token);
-    // console.log(signedUrlResp);
-    // yield put(publicAssetsLoadedAction(publicAssetResp.data.assets));
+    
   } catch (err) {
     toast.error(" server error Failed to add your asset try again");
-    // if (err.response) {
-    //   yield put(addingNewPublicAssetFailed(err.response.data.message));
-    //   toast.error(err.response.data.message);
-    // } else {
-    //   yield put(addingNewPublicAssetFailed(err.message));
-    //   toast.error(err.message);
-    // }
+    
   }
 };
 
 function* getPublicMusicAsset() {
   try {
     const result = yield getPublicMusicApi();
-    console.log("getpublicmusic is ",result)
     if (result.status === 200) {
       yield put({
         type: types.GET_PUBLIC_MUSIC_SUCCESS,

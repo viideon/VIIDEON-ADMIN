@@ -2,7 +2,6 @@ import Dashboard from "@material-ui/icons/Dashboard";
 import Person from "@material-ui/icons/Person";
 import { Image } from "@material-ui/icons";
 import DashboardPage from "views/Dashboard/Dashboard.js";
-// import UserProfile from "views/UserProfile/UserProfile.js";
 import UserList from "views/Users/UserList";
 import PublicAssets from "views/PublicAssets/PublicAssets";
 import Campaign from "views/Campaign";
