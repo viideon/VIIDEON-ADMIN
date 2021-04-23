@@ -1,7 +1,7 @@
 {
-  "name": "videonpro_admin",
+  "name": "viideon_admin",
   "version": "1.9.0",
-  "description": "VideonPro Admin",
+  "description": "Viideon Admin",
   "private": false,
   "main": "dist/index.js",
   "dependencies": {

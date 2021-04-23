@@ -54,7 +54,7 @@ class SignIn extends React.Component {
               color="primary"
               style={{ textAlign: "center" }}
             >
-              videonPro
+              Viideon
             </Typography>
             <Formik
               onSubmit={this.submitHandler}
