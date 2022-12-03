@@ -12,6 +12,16 @@ import {
 } from "@material-ui/core";
 import { connect } from "react-redux";
 import { loginAction } from "../../Redux/Actions/Authentication";
+import { primaryColor } from "../../assets/jss/material-dashboard-react";
+import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: primaryColor[0],
+    },
+  },
+});
 const styles = {
   cardStyles: {
     width: "40%",
@@ -36,72 +46,79 @@ class SignIn extends React.Component {
   };
   render() {
     return (
-      <div>
-        <Card style={styles.cardStyles}>
-          <Typography
-            variant="h3"
-            color="primary"
-            style={{ textAlign: "center" }}
-          >
-            videonPro
-          </Typography>
-          <Formik
-            onSubmit={this.submitHandler}
-            initialValues={{
-              password: "",
-              email: "",
-            }}
-            validationSchema={validationSchema}
-          >
-            {(formik) => (
-              <form onSubmit={formik.handleSubmit} style={{ padding: "10px" }}>
-                <div style={{ marginBottom: "30px" }}>
-                  <FormControl fullWidth={true}>
-                    <InputLabel htmlFor="email">Email</InputLabel>
-                    <Input
-                      name="email"
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      id="email"
-                      aria-describedby="email-helper-text"
-                    />
-                    <FormHelperText error={true} id="email-helper-text">
-                      {formik.touched.email ? formik.errors.email : null}
-                    </FormHelperText>
-                  </FormControl>
-                </div>
-                <div style={{ marginBottom: "30px" }}>
-                  <FormControl fullWidth={true}>
-                    <InputLabel htmlFor="password">Password</InputLabel>
-                    <Input
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      name="password"
-                      type="password"
-                      id="password"
-                      aria-describedby="password-helper-text"
-                    />
-                    <FormHelperText error={true} id="password-helper-text">
-                      {formik.touched.password ? formik.errors.password : null}
-                    </FormHelperText>
-                  </FormControl>
-                </div>
-                <div style={{ marginTop: "10px" }}>
-                  <Button
-                    type="submit"
-                    color="primary"
-                    variant="contained"
-                    fullWidth={true}
-                    disabled={this.props.Authentication.isLoading}
-                  >
-                    LOGIN
-                  </Button>
-                </div>
-              </form>
-            )}
-          </Formik>
-        </Card>
-      </div>
+      <ThemeProvider theme={theme}>
+        <div>
+          <Card style={styles.cardStyles}>
+            <Typography
+              variant="h3"
+              color="primary"
+              style={{ textAlign: "center" }}
+            >
+              Viideon
+            </Typography>
+            <Formik
+              onSubmit={this.submitHandler}
+              initialValues={{
+                password: "",
+                email: "",
+              }}
+              validationSchema={validationSchema}
+            >
+              {(formik) => (
+                <form
+                  onSubmit={formik.handleSubmit}
+                  style={{ padding: "10px" }}
+                >
+                  <div style={{ marginBottom: "30px" }}>
+                    <FormControl fullWidth={true}>
+                      <InputLabel htmlFor="email">Email</InputLabel>
+                      <Input
+                        name="email"
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        id="email"
+                        aria-describedby="email-helper-text"
+                      />
+                      <FormHelperText error={true} id="email-helper-text">
+                        {formik.touched.email ? formik.errors.email : null}
+                      </FormHelperText>
+                    </FormControl>
+                  </div>
+                  <div style={{ marginBottom: "30px" }}>
+                    <FormControl fullWidth={true}>
+                      <InputLabel htmlFor="password">Password</InputLabel>
+                      <Input
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        name="password"
+                        type="password"
+                        id="password"
+                        aria-describedby="password-helper-text"
+                      />
+                      <FormHelperText error={true} id="password-helper-text">
+                        {formik.touched.password
+                          ? formik.errors.password
+                          : null}
+                      </FormHelperText>
+                    </FormControl>
+                  </div>
+                  <div style={{ marginTop: "10px" }}>
+                    <Button
+                      type="submit"
+                      color="primary"
+                      variant="contained"
+                      fullWidth={true}
+                      disabled={this.props.Authentication.isLoading}
+                    >
+                      LOGIN
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </Formik>
+          </Card>
+        </div>
+      </ThemeProvider>
     );
   }
 }

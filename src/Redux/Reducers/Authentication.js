@@ -11,6 +11,8 @@ const Authentication = (
       return { isLoading: false, isAuthenticated: true, user: action.payload };
     case types.LOGIN_FAILED:
       return { isLoading: false, isAuthenticated: false, user: null };
+    case types.LOGOUT:
+      return { isLoading: false, isAuthenticated: false, user: null };
     default:
       return state;
   }

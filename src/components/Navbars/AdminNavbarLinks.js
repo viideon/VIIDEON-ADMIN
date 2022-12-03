@@ -1,6 +1,6 @@
 import React from "react";
 import classNames from "classnames";
-// @material-ui/core components
+
 import { makeStyles } from "@material-ui/core/styles";
 import MenuItem from "@material-ui/core/MenuItem";
 import MenuList from "@material-ui/core/MenuList";
@@ -10,16 +10,17 @@ import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import Hidden from "@material-ui/core/Hidden";
 import Poppers from "@material-ui/core/Popper";
 import Divider from "@material-ui/core/Divider";
-// @material-ui/icons
-import Person from "@material-ui/icons/Person";
-// core components
-import Button from "components/CustomButtons/Button.js";
 
+import Person from "@material-ui/icons/Person";
+
+import Button from "components/CustomButtons/Button.js";
+import { connect } from "react-redux";
+import { logoutAction } from "../../Redux/Actions/Authentication";
 import styles from "assets/jss/material-dashboard-react/components/headerLinksStyle.js";
 
 const useStyles = makeStyles(styles);
 
-export default function AdminNavbarLinks() {
+function AdminNavbarLinks(props) {
   const classes = useStyles();
   const [openProfile, setOpenProfile] = React.useState(null);
   const handleClickProfile = (event) => {
@@ -32,6 +33,8 @@ export default function AdminNavbarLinks() {
   const handleCloseProfile = () => {
     setOpenProfile(null);
   };
+  const logoutHandler = () => props.dispatch(logoutAction());
+
   return (
     <div>
       <Button
@@ -91,7 +94,7 @@ export default function AdminNavbarLinks() {
                     </MenuItem>
                     <Divider light />
                     <MenuItem
-                      onClick={handleCloseProfile}
+                      onClick={logoutHandler}
                       className={classes.dropdownItem}
                     >
                       Logout
@@ -106,3 +109,5 @@ export default function AdminNavbarLinks() {
     </div>
   );
 }
+
+export default connect()(AdminNavbarLinks);
