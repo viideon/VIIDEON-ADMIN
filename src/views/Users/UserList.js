@@ -22,6 +22,7 @@ const UsersList = (props) =>  {
   
   useEffect(() => {
     props.getUsers(1, 10);
+    console.log('Users loaded', props.Users);
   }, []) 
   
   const updatePages = () => {

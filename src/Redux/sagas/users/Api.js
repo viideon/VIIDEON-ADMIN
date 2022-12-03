@@ -1,12 +1,10 @@
-import API from "../../../lib/Api";
+import {API} from 'aws-amplify';
 
-export const getUsersApi = (pageNo, pageSize, token) =>
-  API.get("user/", {
-    params: { pageNo, pageSize },
-    headers: { authorization: "bearer " + token }
+export const getUsersApi = (pageNo, pageSize) =>
+  API.get('Backend', "/user/", {
+    params: { pageNo, pageSize }
   });
-  export const removeUserApi = (id , token) =>
-  API.get(`user/${id}`, {
-    params: { id },
-    headers: { authorization: "bearer " + token }
+  export const removeUserApi = (id) =>
+  API.get('Backend', `/user/${id}`, {
+    params: { id }
   });

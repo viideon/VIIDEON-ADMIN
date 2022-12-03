@@ -1,17 +1,13 @@
-import API from "../../../lib/Api";
+import {API} from 'aws-amplify';
 
-export const getPublicAssets = token =>
-  API.get("/publicAssets/getAssets", {
-    headers: { authorization: "bearer " + token }
-  });
+export const getPublicAssets = () =>
+  API.get('Backend', "/publicAssets/getAssets", {});
 
-export const getSignedUrl = token =>
-  API.get("/publicAssets/getSignedUrlForAssetUploading", {
-    headers: { authorization: "bearer " + token }
-  });
+export const getSignedUrl = () =>
+  API.get('Backend', "/publicAssets/getSignedUrlForAssetUploading", {});
   export async function addMusicAsset(newAsset) {
-    return API.post("/asset/addpublicmusic", newAsset);
+    return API.post('Backend', "/asset/addpublicmusic", { body: newAsset});
   }
   export async function getPublicMusicApi() {
-    return API.get("/asset/getpublicmusic");
+    return API.get('Backend', "/asset/getpublicmusic", {});
   }
