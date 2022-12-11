@@ -1,21 +1,17 @@
-import { put, takeEvery, takeLatest, select } from "redux-saga/effects";
+import { put, takeEvery, takeLatest } from "redux-saga/effects";
 import types from "../../Types/industries";
 import { addIndustryApi, getIndustriesApi, updateIndustryApi, deleteIndustryApi } from "./Api";
 import { toast } from "react-toastify";
-import { getIndustries } from "../../Selectors";
+import { Storage } from "aws-amplify";
+import {asyncForEach} from '../../../util';
 
 const addIndustry = function* (action) {
   try {
-    const result = yield addIndustryApi(action.payload);
-    if (result.status === 201) {
-      yield put({type: types.ADD_CAMPAIGN_INDUSTRY_SUCCESS});
-      yield put({type: types.GET_INDUSTRIES});
-      yield put({ type: types.TURN_TO_NULL });
-      toast.info("Industry Added");
-    } else {
-      yield put({ type: types.ADD_CAMPAIGN_INDUSTRY_FAILURE });
-      toast.error("Error adding industry");
-    }
+    yield addIndustryApi(action.payload);
+    yield put({type: types.ADD_CAMPAIGN_INDUSTRY_SUCCESS});
+    yield put({type: types.GET_INDUSTRIES});
+    yield put({ type: types.TURN_TO_NULL });
+    toast.info("Industry Added");
   } catch (error) {
     if (error.response) {
       const errorMessage = error.response.data.message;
@@ -33,17 +29,21 @@ const addIndustry = function* (action) {
   }
 };
 
-function* getIndustriesSaga(action) {
+function* getIndustriesSaga() {
   try {
     const result = yield getIndustriesApi();
-    if (result.status === 200) {
-      yield put({
-        type: types.GET_INDUSTRIES_SUCCESS,
-        payload: result.data.industries
+    const _result = [];
+    yield asyncForEach(result.industries, async industry => {
+      const url = await Storage.get(industry.thumbnailUrl, {level: 'public'});
+      _result.push({
+        ...industry,
+        thumbnailUrl: url,
       });
-    } else {
-      yield put({ type: types.GET_INDUSTRIES_FAILURE });
-    }
+    });
+    yield put({
+      type: types.GET_INDUSTRIES_SUCCESS,
+      payload: _result
+    });
   } catch (error) {
     if (error.response) {
       const errorMessage = error.response.data.message;
@@ -62,16 +62,11 @@ function* getIndustriesSaga(action) {
 }
 function* updateIndustry(action) {
   try {
-    const result = yield updateIndustryApi(action.payload);
-    if (result.status === 200) {
-      yield put({ type: types.UPDATE_INDUSTRY_SUCCESS });
-      yield put({ type: types.GET_INDUSTRIES})
-      yield put({ type: types.TURN_TO_NULL });
-      toast.info("Industry updated");
-    } else {
-      yield put({ type: types.UPDATE_INDUSTRY_FAILURE });
-      toast.error("Unexpected error,failed to update industry");
-    }
+    yield updateIndustryApi(action.payload);
+    yield put({ type: types.UPDATE_INDUSTRY_SUCCESS });
+    yield put({ type: types.GET_INDUSTRIES})
+    yield put({ type: types.TURN_TO_NULL });
+    toast.info("Industry updated");
   } catch (error) {
     if (error.response) {
       const errorMessage = error.response.data.message;
@@ -90,16 +85,11 @@ function* updateIndustry(action) {
 }
 function* deleteIndustry(action) {
   try {
-    const result = yield deleteIndustryApi(action.payload);
-    if (result.status === 200) {
-      yield put({ type: types.DELETE_INDUSTRY_SUCCESS });
-      yield put({ type: types.GET_INDUSTRIES})
-      yield put({ type: types.TURN_TO_NULL });
-      toast.info("Industry deleted");
-    } else {
-      yield put({ type: types.DELETE_INDUSTRY_FAILURE });
-      toast.error("Unexpected error, failed to delete industry");
-    }
+    yield deleteIndustryApi(action.payload);
+    yield put({ type: types.DELETE_INDUSTRY_SUCCESS });
+    yield put({ type: types.GET_INDUSTRIES})
+    yield put({ type: types.TURN_TO_NULL });
+    toast.info("Industry deleted");
   } catch (error) {
     if (error.response) {
       const errorMessage = error.response.data.message;

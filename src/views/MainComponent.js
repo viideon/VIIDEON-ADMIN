@@ -27,13 +27,6 @@ toast.configure({
 // Amplify.Logger.LOG_LEVEL = 'DEBUG';
 
 Amplify.configure({
-  Auth: {
-    identityPoolId: process.env.REACT_APP_COGNITO_IDENTITY_POOL_ID,
-    region: process.env.REACT_APP_COGNITO_REGION,
-    userPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
-    userPoolWebClientId: process.env.REACT_APP_COGNITO_USER_POOL_WEB_CLIENT_ID,
-    authenticationFlowType: 'USER_SRP_AUTH'
-  },
   API: {
     endpoints: [
       {
@@ -42,6 +35,19 @@ Amplify.configure({
       },
     ],
   },
+  Auth: {
+    identityPoolId: process.env.REACT_APP_COGNITO_IDENTITY_POOL_ID,
+    region: process.env.REACT_APP_COGNITO_REGION,
+    userPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
+    userPoolWebClientId: process.env.REACT_APP_COGNITO_USER_POOL_WEB_CLIENT_ID,
+    authenticationFlowType: 'USER_SRP_AUTH'
+  },
+  Storage: {
+    AWSS3: {
+      bucket: process.env.REACT_APP_S3_BUCKET,
+      region: process.env.REACT_APP_S3_REGION,
+    }
+  }
 });
 
 const MainComponent = () => {

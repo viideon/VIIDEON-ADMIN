@@ -45,7 +45,6 @@ class SignIn extends React.Component {
   submitHandler = async (values) => {
     try {
       const user = await Auth.signIn(values.email, values.password);
-      console.log('User signed in', {user});
       const { dispatch } = this.props;
       dispatch(loginAction(user));
     } catch (error) {

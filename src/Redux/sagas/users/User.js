@@ -29,7 +29,7 @@ const userRemoveSaga = function* (action) {
     
     yield put( {type: "USER_REMOVE_S", payload: action.payload } );
   } catch (err) {
-   console.log(err)
+   console.error(err)
   }
 };
 
