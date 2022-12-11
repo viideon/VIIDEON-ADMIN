@@ -13,6 +13,7 @@ import SignIn from "views/SignIn/SignIn";
 import ProtectedRoute from "./ProtectedRoute";
 import AuthRoute from "./AuthRoute";
 import { PersistGate } from "redux-persist/integration/react";
+import {Amplify} from 'aws-amplify';
 
 const hist = createBrowserHistory();
 toast.configure({
@@ -22,6 +23,33 @@ toast.configure({
   pauseOnFocusLoss: false,
   limit: 2,
 });
+
+// Amplify.Logger.LOG_LEVEL = 'DEBUG';
+
+Amplify.configure({
+  API: {
+    endpoints: [
+      {
+        name: 'Backend',
+        endpoint: process.env.REACT_APP_APIURL,
+      },
+    ],
+  },
+  Auth: {
+    identityPoolId: process.env.REACT_APP_COGNITO_IDENTITY_POOL_ID,
+    region: process.env.REACT_APP_COGNITO_REGION,
+    userPoolId: process.env.REACT_APP_COGNITO_USER_POOL_ID,
+    userPoolWebClientId: process.env.REACT_APP_COGNITO_USER_POOL_WEB_CLIENT_ID,
+    authenticationFlowType: 'USER_SRP_AUTH'
+  },
+  Storage: {
+    AWSS3: {
+      bucket: process.env.REACT_APP_S3_BUCKET,
+      region: process.env.REACT_APP_S3_REGION,
+    }
+  }
+});
+
 const MainComponent = () => {
   return (
     <Provider store={store}>

@@ -18,6 +18,7 @@ import { updateIndustry } from "../../Redux/Actions/Industry";
 import { Close } from "@material-ui/icons";
 
 import "./style.css";
+import {Storage} from 'aws-amplify';
 
 class UpdateIndustry extends React.Component {
   s3;
@@ -47,31 +48,31 @@ class UpdateIndustry extends React.Component {
     });
   };
 
-  uploadThumbnail = e => {
+  uploadThumbnail = async e => {
     if (e.target.files[0] !== null) {
       if (!e.target.files[0].name.match(/\.(jpg|jpeg|png)$/)) {
         toast.error("Please add valid image");
         return;
       }
-      const thumbnailOptions = {
-        Bucket: config.bucketName,
-        ACL: config.ACL,
-        Key: Date.now().toString() + e.target.files[0].name,
-        Body: e.target.files[0]
-      };
       this.setState({ thumbnailUploading: true });
-      this.s3.upload(thumbnailOptions, (err, data) => {
-        if (err) {
-          toast.error(err.message);
-          this.setState({ thumbnailUploading: false });
-          return;
-        }
+      try {
+        const data = await Storage.put(
+          `${Date.now().toString()}_${e.target.files[0].name}`,
+          e.target.files[0],
+          {
+            level: 'public'
+          }
+        );
         this.setState({
           thumbnailUploading: false,
-          thumbnailUrl: data.Location
+          thumbnailKey: data.key,
+          thumbnailUrl: await Storage.get(data.key, {level: 'public'}),
         });
         toast.info("Uploaded");
-      });
+      } catch (_error) {
+        toast.error(_error.message);
+        this.setState({ thumbnailUploading: false });
+      }
     } else {
       toast.error("error in selecting file");
     }
@@ -81,21 +82,20 @@ class UpdateIndustry extends React.Component {
   };
 
   updateIndustry = () => {
-    const { name, thumbnailUrl, description } = this.state;
+    const { name, thumbnailKey, description } = this.state;
     if (name === "") {
       return toast.error("Industry name is required");
     } else if (description === "") {
       return toast.error("Industry description is required");
-    } else if (thumbnailUrl === "") {
+    } else if (thumbnailKey === "") {
       return toast.error("Industry thumbnail is required");
     } else {
       const industry = {
-        _id: this.props.industry._id,
         name,
         description,
-        thumbnailUrl,
+        thumbnailUrl: thumbnailKey,
       };
-      this.props.updateIndustry(industry._id,industry);
+      this.props.updateIndustry(this.props.industry._id, industry);
     }
   };
   render() {
@@ -199,10 +199,10 @@ class UpdateIndustry extends React.Component {
     );
   }
 }
-const cardStyle = {
-  marginBottom: "10px",
-  boxShadow: "0 0 4px #505050"
-};
+// const cardStyle = {
+//   marginBottom: "10px",
+//   boxShadow: "0 0 4px #505050"
+// };
 
 const mapStateToProps = state => {
   return {

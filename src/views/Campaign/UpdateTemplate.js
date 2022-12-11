@@ -31,6 +31,7 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 
 import "./style.css";
+import {Storage} from 'aws-amplify';
 
 class UpdateTemplate extends React.Component {
   s3;
@@ -152,31 +153,31 @@ class UpdateTemplate extends React.Component {
   triggerThumbnailUpload = () => {
     this.refs.thumbnailUploadRef.click();
   };
-  uploadThumbnail = e => {
+  uploadThumbnail = async e => {
     if (e.target.files[0] !== null) {
       if (!e.target.files[0].name.match(/\.(jpg|jpeg|png)$/)) {
         toast.error("Please add valid image");
         return;
       }
-      const thumbnailOptions = {
-        Bucket: config.bucketName,
-        ACL: config.ACL,
-        Key: Date.now().toString() + e.target.files[0].name,
-        Body: e.target.files[0]
-      };
       this.setState({ thumbnailUploading: true });
-      this.s3.upload(thumbnailOptions, (err, data) => {
-        if (err) {
-          toast.error(err.message);
-          this.setState({ thumbnailUploading: false });
-          return;
-        }
+      try {
+        const data = await Storage.put(
+            `${Date.now().toString()}_${e.target.files[0].name}`,
+            e.target.files[0],
+            {
+              level: 'public'
+            }
+        );
         this.setState({
           thumbnailUploading: false,
-          thumbnailImgUrl: data.Location
+          thumbnailKey: data.key,
+          thumbnailImgUrl:  await Storage.get(data.key, {level: 'public'}),
         });
         toast.info("Uploaded");
-      });
+      } catch (_error) {
+        toast.error(_error.message);
+        this.setState({ thumbnailUploading: false });
+      }
     } else {
       toast.error("error in selecting file");
     }
@@ -193,14 +194,14 @@ class UpdateTemplate extends React.Component {
     }
   };
   updateTemplate = () => {
-    const { name, steps, thumbnailImgUrl, templateDescription, industryId } = this.state;
+    const { name, steps, thumbnailKey, templateDescription, industryId } = this.state;
     if (!industryId) {
       return toast.error("Select Industry First!")
     } else if (name === "") {
       return toast.error("Template name is required");
     } else if (templateDescription === "") {
       return toast.error("Template description is required");
-    } else if (thumbnailImgUrl === "") {
+    } else if (thumbnailKey === "") {
       return toast.error("Template thumbnail is required");
     } else if (!steps.length) {
       return toast.error("You need to add atleast one step for campaign templates");
@@ -214,7 +215,7 @@ class UpdateTemplate extends React.Component {
         name: this.state.name,
         templateDescription: this.state.templateDescription,
         steps: this.state.steps,
-        templateThumbnailUrl: this.state.thumbnailImgUrl,
+        templateThumbnailUrl: this.state.thumbnailKey,
         totalSteps: this.state.steps.length,
         industryId: this.state.industryId,
         duration
