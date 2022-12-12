@@ -11,6 +11,8 @@ import {
   Button,
 } from "@material-ui/core";
 import { connect } from "react-redux";
+import {Auth} from "aws-amplify";
+import { toast } from "react-toastify";
 import { loginAction } from "../../Redux/Actions/Authentication";
 import { primaryColor } from "../../assets/jss/material-dashboard-react";
 import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
@@ -40,9 +42,15 @@ const validationSchema = Yup.object().shape({
 });
 
 class SignIn extends React.Component {
-  submitHandler = (values) => {
-    const { dispatch } = this.props;
-    dispatch(loginAction(values));
+  submitHandler = async (values) => {
+    try {
+      const user = await Auth.signIn(values.email, values.password);
+      const { dispatch } = this.props;
+      dispatch(loginAction(user));
+    } catch (error) {
+      console.error('Error signing in', {error});
+      toast.error("There was an error signing in to your account. Please try again later.");
+    }
   };
   render() {
     return (

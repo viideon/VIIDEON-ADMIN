@@ -1,4 +1,4 @@
-import API from "../../../lib/Api";
+import {API} from 'aws-amplify';
 
-export const loginApi = ({ email, password }) =>
-  API.post("user/login", { email, password });
+export const loginApi = ({ email }) =>
+  API.post('Backend', "/user/login", { body: { email } });

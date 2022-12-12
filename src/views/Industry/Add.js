@@ -1,6 +1,7 @@
 import React from "react";
 import AWS from "aws-sdk";
 import { connect } from "react-redux";
+import { Storage } from "aws-amplify";
 import {
   Typography,
   Button,
@@ -42,49 +43,49 @@ class AddTemplates extends React.Component {
   viewTemplates = () => {
     this.props.changeCurrentComponent(1);
   };
-  uploadThumbnail = e => {
+  uploadThumbnail = async e => {
     if (e.target.files[0] !== null) {
       if (!e.target.files[0].name.match(/\.(jpg|jpeg|png)$/)) {
         toast.error("Please add valid image");
         return;
       }
-      const thumbnailOptions = {
-        Bucket: config.bucketName,
-        ACL: config.ACL,
-        Key: Date.now().toString() + e.target.files[0].name,
-        Body: e.target.files[0]
-      };
       this.setState({ thumbnailUploading: true });
-      this.s3.upload(thumbnailOptions, (err, data) => {
-        if (err) {
-          toast.error(err.message);
-          this.setState({ thumbnailUploading: false });
-          return;
-        }
+      try {
+        const data = await Storage.put(
+          `${Date.now().toString()}_${e.target.files[0].name}`,
+          e.target.files[0],
+          {
+            level: 'public'
+          }
+        );
         this.setState({
           thumbnailUploading: false,
-          thumbnailUrl: data.Location
+          thumbnailKey: data.key,
+          thumbnailUrl: await Storage.get(data.key, {level: 'public'}),
         });
         toast.info("Uploaded");
-      });
+      } catch (_error) {
+        toast.error(_error.message);
+        this.setState({ thumbnailUploading: false });
+      }
     } else {
       toast.error("error in selecting file");
     }
   };
   saveTemplate = () => {
-    const { name, thumbnailUrl, description } = this.state;
+    const { name, thumbnailKey, description } = this.state;
     if (name === "") {
       return toast.error("Industry name is required");
     } else if (description === "") {
       return toast.error("Industry description is required");
-    } else if (thumbnailUrl === "") {
+    } else if (thumbnailKey === "") {
       return toast.error("Industry thumbnail is required");
     } else {
       const industry = {
         name,
         description,
         styles: [],
-        thumbnailUrl,
+        thumbnailUrl: thumbnailKey,
       };
       this.props.addCampaignIndustry(industry);
     }
@@ -175,9 +176,9 @@ class AddTemplates extends React.Component {
     );
   }
 }
-const cardStyle = {
-  marginBottom: "5px"
-};
+// const cardStyle = {
+//   marginBottom: "5px"
+// };
 const mapStateToProps = state => {
   return {
     isTemplateSaved: state.Campaigns.isTemplateSaved,

@@ -1,14 +1,14 @@
-import API from "../../../lib/Api";
+import {API} from 'aws-amplify';
 
 export const addIndustryApi = industry => {
-  return API.post("/industry/", industry);
+  return API.post('Backend', "/industry", { body: industry });
 };
 export const getIndustriesApi = () => {
-  return API.get("/industry/");
+  return API.get('Backend', "/industry", {});
 };
 export const updateIndustryApi = (industry) => {
-  return API.patch("/industry/", industry);
+  return API.patch('Backend', "/industry", { body: industry });
 };
 export const deleteIndustryApi = id => {
-  return API.delete(`/industry/${id}`)
+  return API.del('Backend', `/industry/${id}`, {})
 }

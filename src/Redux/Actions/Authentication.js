@@ -1,8 +1,8 @@
 import * as types from "../actionTypes";
 
-export const loginAction = ({ email, password }) => ({
+export const loginAction = (user) => ({
   type: types.LOGIN,
-  payload: { email, password },
+  payload: { user },
 });
 export const loggedInAction = (user) => ({
   type: types.LOGEDIN,

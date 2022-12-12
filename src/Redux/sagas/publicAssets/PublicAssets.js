@@ -1,14 +1,16 @@
 import { put, takeEvery, select } from "redux-saga/effects";
+import { Storage } from "aws-amplify";
 import * as types from "../../actionTypes";
 
-import { getPublicAssets, getSignedUrl,addMusicAsset,getPublicMusicApi } from "./Api";
+import { getPublicAssets,addMusicAsset,getPublicMusicApi } from "./Api";
 import { toast } from "react-toastify";
 import {
   publicAssetsLoadedAction,
-  publicAssetsLoadingFailed,
-  addingNewPublicAssetFailed
+  publicAssetsLoadingFailed
 } from "../../Actions/PublicAssets";
 import { getToken } from "../../Selectors";
+import {asyncForEach} from "../../../util/index";
+
 const getAssets = function* () {
   try {
     const token = yield select(getToken);
@@ -27,33 +29,32 @@ const getAssets = function* () {
 
 const addNewAsset = function* (action) {
   try {
-    const result = yield addMusicAsset(action.payload);
-    if (result.status === 201) {
-      yield put({ type: "ADD_NEW_ASSET" });
-      yield put({
-        type: types.GET_PUBLIC_MUSIC
-      });
-    } else {
-      toast.error("Failed to add your asset try again");
-    }
-    
+    yield addMusicAsset(action.payload);
+    yield put({ type: "ADD_NEW_ASSET" });
+    yield put({
+      type: types.GET_PUBLIC_MUSIC
+    });
   } catch (err) {
+    console.error('Error adding asset', err);
     toast.error(" server error Failed to add your asset try again");
-    
   }
 };
 
 function* getPublicMusicAsset() {
   try {
     const result = yield getPublicMusicApi();
-    if (result.status === 200) {
-      yield put({
-        type: types.GET_PUBLIC_MUSIC_SUCCESS,
-        payload: result.data.musicAssetIs
+    const _result = [];
+    yield asyncForEach(result.musicAssetIs, async asset => {
+      const url = await Storage.get(asset.url, {level: 'public'});
+      _result.push({
+        ...asset,
+        url,
       });
-    } else {
-      yield put({ type: types.GET_PUBLIC_MUSIC_FAILURE });
-    }
+    });
+    yield put({
+      type: types.GET_PUBLIC_MUSIC_SUCCESS,
+      payload: _result,
+    });
   } catch (error) {
     if (error.response) {
       const errorMessage = error.response.data.message;
